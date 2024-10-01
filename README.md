@@ -1,2 +1,3 @@
 # DI-QKD-review
-There are all the details of the DI-QKD review that it will be soon available.
+All the details of the DI-QKD review will soon be available.
+Currently, only Mathematica documents are present. We plan to extend to other formats for wider accessibility.
