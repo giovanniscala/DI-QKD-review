@@ -1,0 +1,4373 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[    176220,       4365]
+NotebookOptionsPosition[    165893,       4196]
+NotebookOutlinePosition[    166378,       4214]
+CellTagsIndexPosition[    166335,       4211]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+The future of secure communications: device independence in quantum key \
+distribution\
+\>", "Title",
+ CellChangeTimes->{{3.936795468495348*^9, 3.9367954886033316`*^9}},
+ TextAlignment->Center,ExpressionUUID->"ff2920fa-85df-4a40-9857-7b8862bd64d5"],
+
+Cell["tutorials and details", "Subtitle",
+ CellChangeTimes->{{3.9367955280018735`*^9, 3.936795540044193*^9}},
+ TextAlignment->Center,ExpressionUUID->"5b998d5d-febb-4f64-bc01-a83ca3a1475e"],
+
+Cell["\<\
+This document support the main review exploring important details and \
+tutoring the less expert readers mantaining the review short, coincise, and \
+linear. The contents are organized similarly to the main text.\
+\>", "Text",
+ CellChangeTimes->{{3.9367955706800356`*^9, 3.9367956180491533`*^9}, {
+  3.936795749147793*^9, 3.936795820537219*^9}, {3.936795853500193*^9, 
+  3.9367958993592663`*^9}, {3.936795946259318*^9, 
+  3.9367959695937057`*^9}},ExpressionUUID->"e8640b43-38a1-4ef5-83da-\
+ba9c4026761c"],
+
+Cell[CellGroupData[{
+
+Cell["Introduction", "Section",
+ CellChangeTimes->{{3.9367959727738857`*^9, 3.936795976800544*^9}, {
+   3.9367963378147364`*^9, 3.9367963383059998`*^9}, 
+   3.936796463016715*^9},ExpressionUUID->"8c347c82-e0fd-4a6b-b34d-\
+1e348ea61239"],
+
+Cell["\<\
+In this section we explore the tutorial the reader meet in introduction such \
+as basic algorithms and knowledge of cryptography.\
+\>", "Text",
+ CellChangeTimes->{{3.9367955706800356`*^9, 3.9367956180491533`*^9}, {
+  3.936795749147793*^9, 3.936795820537219*^9}, {3.936795853500193*^9, 
+  3.9367958993592663`*^9}, {3.936795946259318*^9, 3.9367960110295424`*^9}, {
+  3.9367975031270876`*^9, 
+  3.93679754524823*^9}},ExpressionUUID->"854729f0-832d-49b9-b11e-\
+fba360e76521"],
+
+Cell[CellGroupData[{
+
+Cell["One time pad (OTP)", "Subsection",
+ CellChangeTimes->{{3.93679661678691*^9, 
+  3.936796625304134*^9}},ExpressionUUID->"d759ed80-ac08-4b91-a6b8-\
+04e5448d3ef9"],
+
+Cell[CellGroupData[{
+
+Cell["mod 26 - only the alphabet", "Subsubsection",
+ CellChangeTimes->{{3.9367966460727425`*^9, 
+  3.936796654113071*^9}},ExpressionUUID->"1dedd805-7803-4d1a-852b-\
+153c2d929bfc"],
+
+Cell["Example: ", "Text",
+ CellChangeTimes->{{3.9367966811063533`*^9, 
+  3.9367967384272842`*^9}},ExpressionUUID->"9c19f6ee-3fd2-40af-ae5a-\
+54de55caa8f7"],
+
+Cell["\<\
+1.Plaintext Message: \"HELLO\"
+2. Key:  \"XMCKL\" (This key is the same length as the plaintext and is \
+completely random)
+
+1. Convert Plaintext and Key to Numerical Values
+Each letter corresponds to a number (A=0, B=1, ..., Z=25).
+
+- Plaintext (HELLO): H=7, E=4, L=11, L=11, O=14
+- Key (XMCKL): X=23, M=12, C=2, K=10, L=11
+
+#### 2. Encrypt the Message
+Use the bitwise XOR operation to combine each letter of the plaintext with \
+the key. In this example, we'll use modular arithmetic for simplicity (since \
+XOR operations on letters can be represented as modulo 26 addition).
+
+\\[
+\\text{Ciphertext} = (\\text{Plaintext} + \\text{Key}) \\mod 26
+\\]
+
+- H(7) + X(23) = 30 mod 26 = 4 (E)
+- E(4) + M(12) = 16 mod 26 = 16 (Q)
+- L(11) + C(2) = 13 mod 26 = 13 (N)
+- L(11) + K(10) = 21 mod 26 = 21 (V)
+- O(14) + L(11) = 25 mod 26 = 25 (Z)
+
+So, the **Ciphertext** is \"EQNVZ\".
+
+#### 3. Decrypt the Message
+Use the same key to decrypt the message. This time, we subtract the key from \
+the ciphertext and apply modulo 26.
+
+\\[
+\\text{Plaintext} = (\\text{Ciphertext} - \\text{Key} + 26) \\mod 26
+\\]
+
+- E(4) - X(23) = -19 + 26 = 7 mod 26 = 7 (H)
+- Q(16) - M(12) = 4 mod 26 = 4 (E)
+- N(13) - C(2) = 11 mod 26 = 11 (L)
+- V(21) - K(10) = 11 mod 26 = 11 (L)
+- Z(25) - L(11) = 14 mod 26 = 14 (O)
+
+So, the **Decrypted Plaintext** is \"HELLO\".
+
+### Summary
+- **Plaintext**: HELLO
+- **Key**: XMCKL
+- **Ciphertext**: EQNVZ
+- **Decrypted Plaintext**: HELLO
+
+This example demonstrates how a one-time pad can securely encrypt and decrypt \
+a message. The key must be kept secret and only used once to maintain the \
+security of the system.
+### Explanation
+1. **Define the plaintext message and the key**: The `plaintext` and `key` \
+variables are defined with the strings \[OpenCurlyDoubleQuote]HELLO\
+\[CloseCurlyDoubleQuote] and \[OpenCurlyDoubleQuote]XMCKL\
+\[CloseCurlyDoubleQuote], respectively.
+2. **Convert characters to numerical values**: The `charToNum` function \
+converts a character to its corresponding numerical value (A=0, B=1, ..., \
+Z=25). This function is applied to the plaintext and the key to get their \
+numerical representations.
+3. **Encrypt the message**: The `encryptChar` function encrypts a single \
+character using modular arithmetic. The `MapThread` function applies this to \
+each pair of plaintext and key values, resulting in the encrypted `ciphertext`.
+4. **Decrypt the message**: The `decryptChar` function decrypts a single \
+character using modular arithmetic. The `MapThread` function applies this to \
+each pair of ciphertext and key values, resulting in the decrypted text.
+5. **Output the results**: The final results are displayed, showing the \
+plaintext, key, ciphertext, and decrypted text.
+
+You can run this code in a Mathematica notebook to see the one-time pad \
+encryption and decryption in action.\
+\>", "Text",
+ CellChangeTimes->{{3.9367966811063533`*^9, 3.936796773694009*^9}, 
+   3.936796832491146*^9},ExpressionUUID->"17291cf7-1cf7-4a5e-9395-\
+03dad991df74"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+   "Function", " ", "to", " ", "convert", " ", "a", " ", "letter", " ", "to", 
+    " ", "its", " ", "numerical", " ", "value", " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"A", "=", "0"}], ",", 
+      RowBox[{"B", "=", "1"}], ",", "...", ",", 
+      RowBox[{"Z", "=", "25"}]}], ")"}]}], "*)"}], 
+  RowBox[{
+   RowBox[{
+    RowBox[{"letterToNumber", "[", "letter_", "]"}], ":=", 
+    RowBox[{
+     RowBox[{"ToCharacterCode", "[", "letter", "]"}], "-", 
+     RowBox[{"ToCharacterCode", "[", "\"\<A\>\"", "]"}]}]}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "convert", " ", "a", " ", "number", " ", "to",
+      " ", "its", " ", "corresponding", " ", "letter", " ", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"0", "=", "A"}], ",", 
+       RowBox[{"1", "=", "B"}], ",", "...", ",", 
+       RowBox[{"25", "=", "Z"}]}], ")"}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"numberToLetter", "[", "number_", "]"}], ":=", 
+    RowBox[{"FromCharacterCode", "[", 
+     RowBox[{"number", "+", 
+      RowBox[{"ToCharacterCode", "[", "\"\<A\>\"", "]"}]}], "]"}]}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "generate", " ", "a", " ", "random", " ", 
+     "key", " ", "of", " ", "the", " ", "same", " ", "length", " ", "as", " ",
+      "the", " ", "plaintext"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"generateRandomKey", "[", "length_", "]"}], ":=", 
+    RowBox[{"StringJoin", "[", 
+     RowBox[{"RandomChoice", "[", 
+      RowBox[{
+       RowBox[{"CharacterRange", "[", 
+        RowBox[{"\"\<A\>\"", ",", "\"\<Z\>\""}], "]"}], ",", "length"}], 
+      "]"}], "]"}]}], "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "Function", " ", "to", " ", "encrypt", " ", "a", " ", "plaintext", " ", 
+      "message", " ", "using", " ", "a", " ", "one"}], "-", 
+     RowBox[{"time", " ", "pad", " ", "key"}]}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"encryptOTP", "[", 
+     RowBox[{"plaintext_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "plaintextNums", ",", "keyNums", ",", "ciphertextNums", ",", 
+        "ciphertext"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"plaintextNums", "=", 
+        RowBox[{"letterToNumber", "/@", 
+         RowBox[{"Characters", "[", 
+          RowBox[{"StringReplace", "[", 
+           RowBox[{
+            RowBox[{"ToUpperCase", "[", "plaintext", "]"}], ",", 
+            RowBox[{
+             RowBox[{"Except", "[", "LetterCharacter", "]"}], "->", 
+             "\"\<\>\""}]}], "]"}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"keyNums", "=", 
+        RowBox[{"letterToNumber", "/@", 
+         RowBox[{"Characters", "[", "key", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"ciphertextNums", "=", 
+        RowBox[{"Mod", "[", 
+         RowBox[{
+          RowBox[{"plaintextNums", "+", "keyNums"}], ",", "26"}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"ciphertext", "=", 
+        RowBox[{"StringJoin", "[", 
+         RowBox[{"numberToLetter", "/@", "ciphertextNums"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "ciphertext"}]}], "]"}]}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "Function", " ", "to", " ", "decrypt", " ", "a", " ", "ciphertext", " ", 
+      "message", " ", "using", " ", "a", " ", "one"}], "-", 
+     RowBox[{"time", " ", "pad", " ", "key"}]}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"decryptOTP", "[", 
+     RowBox[{"ciphertext_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "ciphertextNums", ",", "keyNums", ",", "plaintextNums", ",", 
+        "plaintext"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"ciphertextNums", "=", 
+        RowBox[{"letterToNumber", "/@", 
+         RowBox[{"Characters", "[", "ciphertext", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"keyNums", "=", 
+        RowBox[{"letterToNumber", "/@", 
+         RowBox[{"Characters", "[", "key", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"plaintextNums", "=", 
+        RowBox[{"Mod", "[", 
+         RowBox[{
+          RowBox[{"ciphertextNums", "-", "keyNums"}], ",", "26"}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"plaintext", "=", 
+        RowBox[{"StringJoin", "[", 
+         RowBox[{"numberToLetter", "/@", "plaintextNums"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "plaintext"}]}], "]"}]}], "\[IndentingNewLine]",
+    "\n", 
+   RowBox[{"(*", 
+    RowBox[{"EXAMPLE", " ", "OF", " ", "USAGE"}], "*)"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"plaintext", "=", "\"\<HELLO WORLD\>\""}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"key", "=", 
+     RowBox[{"generateRandomKey", "[", 
+      RowBox[{"StringLength", "[", 
+       RowBox[{"StringReplace", "[", 
+        RowBox[{
+         RowBox[{"ToUpperCase", "[", "plaintext", "]"}], ",", 
+         RowBox[{
+          RowBox[{"Except", "[", "LetterCharacter", "]"}], "->", 
+          "\"\<\>\""}]}], "]"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]",
+    "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Encrypt", " ", "the", " ", "plaintext"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"ciphertext", "=", 
+     RowBox[{"encryptOTP", "[", 
+      RowBox[{"plaintext", ",", "key"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Decrypt", " ", "the", " ", "ciphertext"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"decryptedText", "=", 
+     RowBox[{"decryptOTP", "[", 
+      RowBox[{"ciphertext", ",", "key"}], "]"}]}], ";"}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Output", " ", "the", " ", "results"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"\"\<Plaintext\>\"", "->", "plaintext"}], ",", 
+     RowBox[{"\"\<Key\>\"", "->", "key"}], ",", 
+     RowBox[{"\"\<Ciphertext\>\"", "->", "ciphertext"}], ",", 
+     RowBox[{"\"\<Decrypted Text\>\"", "->", "decryptedText"}]}], "}"}], 
+   "\[IndentingNewLine]"}]}]], "Input",
+ CellChangeTimes->{{3.9310831056498747`*^9, 3.931083105652341*^9}, {
+  3.931083320624953*^9, 3.9310833344199533`*^9}, {3.931083373048795*^9, 
+  3.931083381819006*^9}, {3.931083428023644*^9, 3.931083460613778*^9}},
+ CellLabel->
+  "In[108]:=",ExpressionUUID->"1482a29e-f7e3-481f-aef4-9ddb412f4d8c"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["mod 256 - all the ascii", "Subsubsection",
+ CellChangeTimes->{{3.9310831036711273`*^9, 3.931083104348088*^9}, {
+   3.9310835589468374`*^9, 3.9310835799877853`*^9}, {3.9310836968867664`*^9, 
+   3.9310836997331886`*^9}, {3.931085088452491*^9, 3.93108509083305*^9}, 
+   3.9367968851629133`*^9},ExpressionUUID->"869907fe-2aeb-4ff1-8b03-\
+a487c28cb024"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+   "Function", " ", "to", " ", "generate", " ", "a", " ", "random", " ", 
+    "key", " ", "of", " ", "the", " ", "same", " ", "length", " ", "as", " ", 
+    "the", " ", "plaintext"}], "*)"}], 
+  RowBox[{
+   RowBox[{
+    RowBox[{"generateRandomKey", "[", "length_", "]"}], ":=", 
+    RowBox[{"FromCharacterCode", "[", 
+     RowBox[{"RandomInteger", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "255"}], "}"}], ",", "length"}], "]"}], "]"}]}], 
+   "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "convert", " ", "a", " ", "character", " ", 
+     "to", " ", "its", " ", "numerical", " ", "ASCII", " ", "value"}], "*)"}],
+    "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"charToNumber", "[", "char_", "]"}], ":=", 
+    RowBox[{
+     RowBox[{"ToCharacterCode", "[", "char", "]"}], "[", 
+     RowBox[{"[", "1", "]"}], "]"}]}], "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "convert", " ", "a", " ", "numerical", " ", 
+     "ASCII", " ", "value", " ", "to", " ", "its", " ", "corresponding", " ", 
+     "character"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"numberToChar", "[", "number_", "]"}], ":=", 
+    RowBox[{"FromCharacterCode", "[", "number", "]"}]}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "Function", " ", "to", " ", "encrypt", " ", "a", " ", "plaintext", " ", 
+      "message", " ", "using", " ", "a", " ", "one"}], "-", 
+     RowBox[{"time", " ", "pad", " ", "key"}]}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"encryptOTP", "[", 
+     RowBox[{"plaintext_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "plaintextNums", ",", "keyNums", ",", "ciphertextNums", ",", 
+        "ciphertext"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"plaintextNums", "=", 
+        RowBox[{"charToNumber", "/@", 
+         RowBox[{"Characters", "[", "plaintext", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"keyNums", "=", 
+        RowBox[{"charToNumber", "/@", 
+         RowBox[{"Characters", "[", "key", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"ciphertextNums", "=", 
+        RowBox[{"Mod", "[", 
+         RowBox[{
+          RowBox[{"plaintextNums", "+", "keyNums"}], ",", "256"}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"ciphertext", "=", 
+        RowBox[{"StringJoin", "[", 
+         RowBox[{"numberToChar", "/@", "ciphertextNums"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "ciphertext"}]}], "]"}]}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "Function", " ", "to", " ", "decrypt", " ", "a", " ", "ciphertext", " ", 
+      "message", " ", "using", " ", "a", " ", "one"}], "-", 
+     RowBox[{"time", " ", "pad", " ", "key"}]}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"decryptOTP", "[", 
+     RowBox[{"ciphertext_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "ciphertextNums", ",", "keyNums", ",", "plaintextNums", ",", 
+        "plaintext"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"ciphertextNums", "=", 
+        RowBox[{"charToNumber", "/@", 
+         RowBox[{"Characters", "[", "ciphertext", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"keyNums", "=", 
+        RowBox[{"charToNumber", "/@", 
+         RowBox[{"Characters", "[", "key", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"plaintextNums", "=", 
+        RowBox[{"Mod", "[", 
+         RowBox[{
+          RowBox[{"ciphertextNums", "-", "keyNums"}], ",", "256"}], "]"}]}], 
+       ";", "\[IndentingNewLine]", 
+       RowBox[{"plaintext", "=", 
+        RowBox[{"StringJoin", "[", 
+         RowBox[{"numberToChar", "/@", "plaintextNums"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "plaintext"}]}], "]"}]}], "\[IndentingNewLine]",
+    "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Example", " ", "usage"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"plaintext", "=", "\"\<Matteo vince\>\""}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"key", "=", 
+     RowBox[{"generateRandomKey", "[", 
+      RowBox[{"StringLength", "[", "plaintext", "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Encrypt", " ", "the", " ", "plaintext"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"ciphertext", "=", 
+     RowBox[{"encryptOTP", "[", 
+      RowBox[{"plaintext", ",", "key"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Decrypt", " ", "the", " ", "ciphertext"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"decryptedText", "=", 
+     RowBox[{"decryptOTP", "[", 
+      RowBox[{"ciphertext", ",", "key"}], "]"}]}], ";"}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Output", " ", "results"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+    "plaintext", ",", "key", ",", "ciphertext", ",", "decryptedText"}], "}"}],
+    "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Output", " ", "the", " ", "results"}], "*)"}], "\n", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"\"\<Plaintext\>\"", "->", "plaintext"}], ",", 
+     RowBox[{"\"\<Key\>\"", "->", "key"}], ",", 
+     RowBox[{"\"\<Ciphertext\>\"", "->", "ciphertext"}], ",", 
+     RowBox[{"\"\<Decrypted Text\>\"", "->", "decryptedText"}]}], "}"}], 
+   "\[IndentingNewLine]"}]}]], "Input",
+ CellChangeTimes->{{3.9310835643502274`*^9, 3.931083564353225*^9}, {
+  3.9310836143704433`*^9, 3.93108361977169*^9}, {3.931084189498313*^9, 
+  3.9310841916052217`*^9}, {3.931084398164281*^9, 3.9310844008618684`*^9}, {
+  3.9310846317367907`*^9, 3.931084633426152*^9}},
+ CellLabel->
+  "In[219]:=",ExpressionUUID->"8c2ad45d-919e-4372-84f5-c24bf45cd6fe"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"Matteo vince\"\>", 
+   ",", "\<\"\.06\[AHat]2\.b3?\.06N:#\[CapitalOGrave]\.8d\[CapitalAAcute]\"\>\
+", ",", "\<\"SC\.a6'\[Currency]un\[Degree]\.8c@\[Eth]&\"\>", 
+   ",", "\<\"Matteo vince\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.931083582948762*^9, {3.931083615506504*^9, 3.931083620236084*^9}, 
+   3.9310841921560373`*^9, 3.9310844012250576`*^9, 3.93108446293972*^9, {
+   3.931084626083558*^9, 3.931084633935053*^9}},
+ CellLabel->
+  "Out[228]=",ExpressionUUID->"722ced0b-fd2b-4f2c-a852-e5a0d7fb0b17"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"\<\"Plaintext\"\>", "\[Rule]", "\<\"Matteo vince\"\>"}], ",", 
+   RowBox[{"\<\"Key\"\>", 
+    "\[Rule]", "\<\"\.06\[AHat]2\.b3?\.06N:#\[CapitalOGrave]\.8d\
+\[CapitalAAcute]\"\>"}], ",", 
+   RowBox[{"\<\"Ciphertext\"\>", 
+    "\[Rule]", "\<\"SC\.a6'\[Currency]un\[Degree]\.8c@\[Eth]&\"\>"}], ",", 
+   RowBox[{"\<\"Decrypted Text\"\>", "\[Rule]", "\<\"Matteo vince\"\>"}]}], 
+  "}"}]], "Output",
+ CellChangeTimes->{
+  3.931083582948762*^9, {3.931083615506504*^9, 3.931083620236084*^9}, 
+   3.9310841921560373`*^9, 3.9310844012250576`*^9, 3.93108446293972*^9, {
+   3.931084626083558*^9, 3.931084633948871*^9}},
+ CellLabel->
+  "Out[229]=",ExpressionUUID->"aedbf36a-a919-44da-ace7-bc706a5487a0"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["xor encryption", "Subsubsection",
+ CellChangeTimes->{{3.9310831036711273`*^9, 3.931083104348088*^9}, {
+  3.9310835589468374`*^9, 3.9310835799877853`*^9}, {3.9310836968867664`*^9, 
+  3.9310836997331886`*^9}, {3.93108373187464*^9, 
+  3.931083748606399*^9}},ExpressionUUID->"fcf574b1-2f71-4ce0-9598-\
+19d62ff00505"],
+
+Cell["\<\
+One way to enhance the security of a one-time pad beyond simple modulo \
+operations is to incorporate bitwise operations, such as XOR (exclusive or). \
+XOR is a common operation used in many cryptographic algorithms because it \
+combines two bits in a way that is reversible: applying the same XOR \
+operation twice returns the original value.
+
+
+### Explanation:
+1. **generateRandomKey**: Generates a random key of the same length as the \
+plaintext using the full range of ASCII values (0-255).
+2. **charToNumber**: Converts characters to their numerical ASCII values.
+3. **numberToChar**: Converts numerical ASCII values back to characters.
+4. **encryptOTP**: Encrypts the plaintext using the provided key by \
+performing a bitwise XOR between the ASCII values of the plaintext characters \
+and the key characters.
+5. **decryptOTP**: Decrypts the ciphertext using the provided key by \
+performing the same bitwise XOR operation between the ASCII values of the \
+ciphertext characters and the key characters.
+
+By using the XOR operation, the encryption and decryption processes are both \
+made more secure and efficient. This method ensures that all characters, \
+including spaces and punctuation, are handled correctly. The key advantage of \
+XOR in this context is that it makes the ciphertext indistinguishable from \
+random data, providing strong security properties when the key is truly \
+random and used only once.\
+\>", "Text",
+ CellChangeTimes->{{3.9310852522182455`*^9, 
+  3.9310852707896123`*^9}},ExpressionUUID->"0ee0194b-4e45-4767-9817-\
+781a6d2c3e1b"],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.931084343444333*^9, 
+  3.9310843444716005`*^9}},ExpressionUUID->"23c3e3cc-027c-4625-aa03-\
+2d0e8b8b9c98"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+   "Function", " ", "to", " ", "generate", " ", "a", " ", "random", " ", 
+    "key", " ", "of", " ", "the", " ", "same", " ", "length", " ", "as", " ", 
+    "the", " ", "plaintext"}], "*)"}], 
+  RowBox[{
+   RowBox[{
+    RowBox[{"generateRandomKey", "[", "length_", "]"}], ":=", 
+    RowBox[{"FromCharacterCode", "[", 
+     RowBox[{"RandomInteger", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "255"}], "}"}], ",", "length"}], "]"}], "]"}]}], 
+   "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "convert", " ", "a", " ", "character", " ", 
+     "to", " ", "its", " ", "numerical", " ", "ASCII", " ", "value"}], "*)"}],
+    "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"charToNumber", "[", "char_", "]"}], ":=", 
+    RowBox[{
+     RowBox[{"ToCharacterCode", "[", "char", "]"}], "[", 
+     RowBox[{"[", "1", "]"}], "]"}]}], "\n", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "convert", " ", "a", " ", "numerical", " ", 
+     "ASCII", " ", "value", " ", "to", " ", "its", " ", "corresponding", " ", 
+     "character"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"numberToChar", "[", "number_", "]"}], ":=", 
+    RowBox[{"FromCharacterCode", "[", "number", "]"}]}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "Function", " ", "to", " ", "encrypt", " ", "a", " ", "plaintext", " ", 
+      "message", " ", "using", " ", "a", " ", "one"}], "-", 
+     RowBox[{"time", " ", "pad", " ", "key", " ", "with", " ", "XOR"}]}], 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"encryptOTP", "[", 
+     RowBox[{"plaintext_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "plaintextNums", ",", "keyNums", ",", "ciphertextNums", ",", 
+        "ciphertext"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"plaintextNums", "=", 
+        RowBox[{"charToNumber", "/@", 
+         RowBox[{"Characters", "[", "plaintext", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"keyNums", "=", 
+        RowBox[{"charToNumber", "/@", 
+         RowBox[{"Characters", "[", "key", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"ciphertextNums", "=", 
+        RowBox[{"BitXor", "@@@", 
+         RowBox[{"Transpose", "[", 
+          RowBox[{"{", 
+           RowBox[{"plaintextNums", ",", "keyNums"}], "}"}], "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"ciphertext", "=", 
+        RowBox[{"StringJoin", "[", 
+         RowBox[{"numberToChar", "/@", "ciphertextNums"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "ciphertext"}]}], "]"}]}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "Function", " ", "to", " ", "decrypt", " ", "a", " ", "ciphertext", " ", 
+      "message", " ", "using", " ", "a", " ", "one"}], "-", 
+     RowBox[{"time", " ", "pad", " ", "key", " ", "with", " ", "XOR"}]}], 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"decryptOTP", "[", 
+     RowBox[{"ciphertext_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "ciphertextNums", ",", "keyNums", ",", "plaintextNums", ",", 
+        "plaintext"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"ciphertextNums", "=", 
+        RowBox[{"charToNumber", "/@", 
+         RowBox[{"Characters", "[", "ciphertext", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"keyNums", "=", 
+        RowBox[{"charToNumber", "/@", 
+         RowBox[{"Characters", "[", "key", "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"plaintextNums", "=", 
+        RowBox[{"BitXor", "@@@", 
+         RowBox[{"Transpose", "[", 
+          RowBox[{"{", 
+           RowBox[{"ciphertextNums", ",", "keyNums"}], "}"}], "]"}]}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"plaintext", "=", 
+        RowBox[{"StringJoin", "[", 
+         RowBox[{"numberToChar", "/@", "plaintextNums"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "plaintext"}]}], "]"}]}], "\[IndentingNewLine]",
+    "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Example", " ", "usage"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"plaintext", "=", "\"\<Giovanni scala\>\""}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"key", "=", 
+     RowBox[{"generateRandomKey", "[", 
+      RowBox[{"StringLength", "[", "plaintext", "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Encrypt", " ", "the", " ", "plaintext"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"ciphertext", "=", 
+    RowBox[{"encryptOTP", "[", 
+     RowBox[{"plaintext", ",", "key"}], "]"}]}], "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Decrypt", " ", "the", " ", "ciphertext"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"decryptedText", "=", 
+    RowBox[{"decryptOTP", "[", 
+     RowBox[{"ciphertext", ",", "key"}], "]"}]}], "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Output", " ", "results"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+    "plaintext", ",", "key", ",", "ciphertext", ",", "decryptedText"}], "}"}],
+    "\n"}]}]], "Input",
+ CellChangeTimes->{{3.931084145116684*^9, 3.9310841609724903`*^9}, {
+  3.9310850629546027`*^9, 3.9310850820060797`*^9}},
+ CellLabel->
+  "In[262]:=",ExpressionUUID->"845a5afe-ec54-463c-bf58-200fcbaba7c7"],
+
+Cell[BoxData["\<\"\.97@\[CapitalAE]\.1c\[CapitalCCedilla]\[ADoubleDot]\.b2;Tu\
+\.9eqj\[Sterling]\"\>"], "Output",
+ CellChangeTimes->{{3.931084147168153*^9, 3.931084161510607*^9}, 
+   3.931085082518154*^9},
+ CellLabel->
+  "Out[269]=",ExpressionUUID->"76d4fee5-e7bc-40a9-ba14-c626137a7e62"],
+
+Cell[BoxData["\<\"Giovanni scala\"\>"], "Output",
+ CellChangeTimes->{{3.931084147168153*^9, 3.931084161510607*^9}, 
+   3.9310850825297613`*^9},
+ CellLabel->
+  "Out[270]=",ExpressionUUID->"f5f354a9-de1f-4dcd-90c4-55d803719075"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"Giovanni scala\"\>", 
+   ",", "\<\"\[CapitalEth])\[Copyright]j\.a6\.8a\[CapitalUDoubleDot]Rt\.06\
+\[YAcute]\.10\.06\[CapitalAHat]\"\>", 
+   ",", "\<\"\.97@\[CapitalAE]\.1c\[CapitalCCedilla]\[ADoubleDot]\.b2;Tu\.9e\
+qj\[Sterling]\"\>", ",", "\<\"Giovanni scala\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{{3.931084147168153*^9, 3.931084161510607*^9}, 
+   3.9310850825401917`*^9},
+ CellLabel->
+  "Out[271]=",ExpressionUUID->"418adb45-eb04-4160-85ea-c5632fb1a0d9"]
+}, Closed]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Permutation-Based One-Time Pad", "Subsubsection",
+ CellChangeTimes->{
+  3.931085155474532*^9},ExpressionUUID->"cb45650e-e670-4922-ac31-\
+74c848097f5f"],
+
+Cell["\<\
+Certainly! Beyond simple modular arithmetic and XOR operations, another \
+method for creating a one-time pad (OTP) involves using more complex \
+transformations such as permutation-based encryption. This can add an \
+additional layer of security by shuffling the characters of the message based \
+on a key. Here\[CloseCurlyQuote]s an example of how you might implement a \
+permutation-based OTP encryption in Mathematica:
+
+### Permutation-Based One-Time Pad
+
+This method uses a random permutation of the plaintext indices as the \
+encryption key.
+
+#### Code Implementation:
+
+```mathematica
+(* Function to generate a random permutation key of the same length as the \
+plaintext *)
+generatePermutationKey[length_] := RandomSample[Range[length]]
+
+(* Function to encrypt a plaintext message using a permutation key *)
+encryptOTP[plaintext_, key_] := Module[
+  {plaintextChars, ciphertextChars},
+  plaintextChars = Characters[plaintext];
+  ciphertextChars = plaintextChars[[key]];
+  StringJoin[ciphertextChars]
+]
+
+(* Function to decrypt a ciphertext message using a permutation key *)
+decryptOTP[ciphertext_, key_] := Module[
+  {ciphertextChars, originalPositions, plaintextChars},
+  ciphertextChars = Characters[ciphertext];
+  originalPositions = Ordering[key];
+  plaintextChars = ciphertextChars[[originalPositions]];
+  StringJoin[plaintextChars]
+]
+
+(* Example usage *)
+plaintext = \[OpenCurlyDoubleQuote]HELLO WORLD\[CloseCurlyDoubleQuote];
+key = generatePermutationKey[StringLength[plaintext]];
+
+(* Encrypt the plaintext *)
+ciphertext = encryptOTP[plaintext, key]
+
+(* Decrypt the ciphertext *)
+decryptedText = decryptOTP[ciphertext, key]
+
+(* Output results *)
+{plaintext, key, ciphertext, decryptedText}
+```
+
+### Explanation:
+1. **generatePermutationKey**: Generates a random permutation key, which is a \
+random reordering of the indices from 1 to the length of the plaintext.
+2. **encryptOTP**: Encrypts the plaintext by rearranging its characters \
+according to the permutation key.
+3. **decryptOTP**: Decrypts the ciphertext by rearranging its characters back \
+to the original order using the inverse of the permutation key.
+4. **Example usage**: Demonstrates the process with the plaintext \
+\[OpenCurlyDoubleQuote]HELLO WORLD\[CloseCurlyDoubleQuote].
+
+### Detailed Steps:
+1. **Generate Permutation Key**:
+   - `generatePermutationKey[length]` creates a random sequence of integers \
+from 1 to the length of the plaintext. For example, for a plaintext of length \
+11, it might produce `{3, 5, 1, 7, 2, 10, 6, 11, 8, 4, 9}`.
+
+2. **Encrypt the Plaintext**:
+   - The plaintext is converted to a list of characters.
+   - The characters are then reordered according to the permutation key. For \
+example, with the plaintext \[OpenCurlyDoubleQuote]HELLO WORLD\
+\[CloseCurlyDoubleQuote] and the key `{3, 5, 1, 7, 2, 10, 6, 11, 8, 4, 9}`, \
+the encrypted message might be \[OpenCurlyDoubleQuote]LO HLEWDLOR\
+\[CloseCurlyDoubleQuote].
+
+3. **Decrypt the Ciphertext**:
+   - The ciphertext is converted to a list of characters.
+   - The characters are reordered back to their original positions using the \
+inverse of the permutation key. The `Ordering` function is used to find the \
+inverse permutation, which reorders the characters back to the original \
+plaintext.
+
+This permutation-based method ensures that the characters are shuffled in a \
+complex manner, providing an additional layer of security compared to simpler \
+methods like modular arithmetic or XOR. However, it still maintains the \
+principles of a one-time pad: the key must be random, as long as the message, \
+and used only once.\
+\>", "Text",
+ CellChangeTimes->{
+  3.931085206705544*^9},ExpressionUUID->"bbe96e6e-9f8b-4fd5-bdf7-\
+bfb697074b37"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+   "Function", " ", "to", " ", "generate", " ", "a", " ", "random", " ", 
+    "permutation", " ", "key", " ", "of", " ", "the", " ", "same", " ", 
+    "length", " ", "as", " ", "the", " ", "plaintext"}], "*)"}], 
+  RowBox[{
+   RowBox[{
+    RowBox[{"generatePermutationKey", "[", "length_", "]"}], ":=", 
+    RowBox[{"RandomSample", "[", 
+     RowBox[{"Range", "[", "length", "]"}], "]"}]}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "encrypt", " ", "a", " ", "plaintext", " ", 
+     "message", " ", "using", " ", "a", " ", "permutation", " ", "key"}], 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"encryptOTP", "[", 
+     RowBox[{"plaintext_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"plaintextChars", ",", "ciphertextChars"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"plaintextChars", "=", 
+        RowBox[{"Characters", "[", "plaintext", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"ciphertextChars", "=", 
+        RowBox[{"plaintextChars", "[", 
+         RowBox[{"[", "key", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"StringJoin", "[", "ciphertextChars", "]"}]}]}], "]"}]}], "\n",
+    "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "decrypt", " ", "a", " ", "ciphertext", " ", 
+     "message", " ", "using", " ", "a", " ", "permutation", " ", "key"}], 
+    "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"decryptOTP", "[", 
+     RowBox[{"ciphertext_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "ciphertextChars", ",", "originalPositions", ",", "plaintextChars"}], 
+       "}"}], ",", 
+      RowBox[{
+       RowBox[{"ciphertextChars", "=", 
+        RowBox[{"Characters", "[", "ciphertext", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"originalPositions", "=", 
+        RowBox[{"Ordering", "[", "key", "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"plaintextChars", "=", 
+        RowBox[{"ciphertextChars", "[", 
+         RowBox[{"[", "originalPositions", "]"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"StringJoin", "[", "plaintextChars", "]"}]}]}], "]"}]}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Example", " ", "usage"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"plaintext", "=", "\"\<HELLO WORLD PLANET\>\""}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"key", "=", 
+     RowBox[{"generatePermutationKey", "[", 
+      RowBox[{"StringLength", "[", "plaintext", "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Encrypt", " ", "the", " ", "plaintext"}], "*)"}], "\n", 
+   RowBox[{"ciphertext", "=", 
+    RowBox[{"encryptOTP", "[", 
+     RowBox[{"plaintext", ",", "key"}], "]"}]}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Decrypt", " ", "the", " ", "ciphertext"}], "*)"}], "\n", 
+   RowBox[{"decryptedText", "=", 
+    RowBox[{"decryptOTP", "[", 
+     RowBox[{"ciphertext", ",", "key"}], "]"}]}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Output", " ", "results"}], "*)"}], "\n", 
+   RowBox[{"{", 
+    RowBox[{
+    "plaintext", ",", "key", ",", "ciphertext", ",", "decryptedText"}], "}"}],
+    "\n"}]}]], "Input",
+ CellChangeTimes->{{3.9310851619216795`*^9, 3.931085180240505*^9}},
+ CellLabel->
+  "In[280]:=",ExpressionUUID->"95aa8cd4-af42-45de-afd1-5f5498547a05"],
+
+Cell[BoxData["\<\"LLL LWAOERDOEN HPT\"\>"], "Output",
+ CellChangeTimes->{{3.9310851651797523`*^9, 3.9310851807640333`*^9}},
+ CellLabel->
+  "Out[285]=",ExpressionUUID->"a07a73be-7587-4d05-a66f-088f058061a1"],
+
+Cell[BoxData["\<\"HELLO WORLD PLANET\"\>"], "Output",
+ CellChangeTimes->{{3.9310851651797523`*^9, 3.931085180779342*^9}},
+ CellLabel->
+  "Out[286]=",ExpressionUUID->"d814b613-d5ea-4c8d-ad9d-86db499cf252"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"HELLO WORLD PLANET\"\>", ",", 
+   RowBox[{"{", 
+    RowBox[{
+    "4", ",", "3", ",", "10", ",", "6", ",", "14", ",", "7", ",", "15", ",", 
+     "8", ",", "2", ",", "9", ",", "11", ",", "5", ",", "17", ",", "16", ",", 
+     "12", ",", "1", ",", "13", ",", "18"}], "}"}], 
+   ",", "\<\"LLL LWAOERDOEN HPT\"\>", ",", "\<\"HELLO WORLD PLANET\"\>"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{{3.9310851651797523`*^9, 3.9310851807908707`*^9}},
+ CellLabel->
+  "Out[287]=",ExpressionUUID->"50789ef8-ec78-4ddb-a089-507c241a4bc4"]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Matrix-Based One-Time Pad", "Subsubsection",
+ CellChangeTimes->{
+  3.9310853893701944`*^9},ExpressionUUID->"7b2a2b4d-bdcf-41dd-bbe7-\
+931c69ce5028"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+   "Function", " ", "to", " ", "convert", " ", "a", " ", "character", " ", 
+    "to", " ", "its", " ", "numerical", " ", "ASCII", " ", "value"}], "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"charToNumber", "[", "char_", "]"}], ":=", 
+    RowBox[{
+     RowBox[{"ToCharacterCode", "[", "char", "]"}], "[", 
+     RowBox[{"[", "1", "]"}], "]"}]}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "convert", " ", "a", " ", "numerical", " ", 
+     "ASCII", " ", "value", " ", "to", " ", "its", " ", "corresponding", " ", 
+     "character"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"numberToChar", "[", "number_", "]"}], ":=", 
+    RowBox[{"FromCharacterCode", "[", "number", "]"}]}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "pad", " ", "the", " ", "plaintext", " ", 
+     "to", " ", "make", " ", "its", " ", "length", " ", "a", " ", "multiple", 
+     " ", "of", " ", "the", " ", "block", " ", "size"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"padPlaintext", "[", 
+     RowBox[{"plaintext_", ",", "blockSize_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"paddingLength", ",", "paddingChar"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"paddingLength", "=", 
+        RowBox[{"blockSize", "-", 
+         RowBox[{"Mod", "[", 
+          RowBox[{
+           RowBox[{"StringLength", "[", "plaintext", "]"}], ",", 
+           "blockSize"}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"paddingLength", "==", "blockSize"}], ",", 
+         RowBox[{"paddingLength", "=", "0"}]}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"paddingChar", "=", 
+        RowBox[{"FromCharacterCode", "[", "blockSize", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"StringJoin", "[", 
+        RowBox[{"plaintext", ",", 
+         RowBox[{"StringRepeat", "[", 
+          RowBox[{"paddingChar", ",", "paddingLength"}], "]"}]}], "]"}]}]}], 
+     "]"}]}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "generate", " ", "a", " ", "random", " ", 
+     "invertible", " ", "key", " ", "matrix", " ", "for", " ", "encryption"}],
+     "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"generateInvertibleKeyMatrix", "[", "blockSize_", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"matrix", ",", "det"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"While", "[", 
+        RowBox[{"True", ",", 
+         RowBox[{
+          RowBox[{"matrix", "=", 
+           RowBox[{"RandomInteger", "[", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"0", ",", "255"}], "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"blockSize", ",", "blockSize"}], "}"}]}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"det", "=", 
+           RowBox[{"Det", "[", 
+            RowBox[{"matrix", ",", 
+             RowBox[{"Modulus", "->", "256"}]}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"det", "!=", "0"}], "&&", 
+             RowBox[{
+              RowBox[{"GCD", "[", 
+               RowBox[{"det", ",", "256"}], "]"}], "==", "1"}]}], ",", 
+            RowBox[{"Break", "[", "]"}]}], "]"}]}]}], "]"}], ";", 
+       "\[IndentingNewLine]", "matrix"}]}], "]"}]}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "convert", " ", "a", " ", "string", " ", "to",
+      " ", "a", " ", "list", " ", "of", " ", "blocks", " ", "of", " ", 
+     "numerical", " ", "values"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"stringToBlocks", "[", 
+     RowBox[{"plaintext_", ",", "blockSize_"}], "]"}], ":=", 
+    RowBox[{"Partition", "[", 
+     RowBox[{
+      RowBox[{"charToNumber", "/@", 
+       RowBox[{"Characters", "[", "plaintext", "]"}]}], ",", "blockSize"}], 
+     "]"}]}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "convert", " ", "a", " ", "list", " ", "of", 
+     " ", "blocks", " ", "of", " ", "numerical", " ", "values", " ", "to", 
+     " ", "a", " ", "string"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"blocksToString", "[", "blocks_", "]"}], ":=", 
+    RowBox[{"StringJoin", "[", 
+     RowBox[{"numberToChar", "/@", 
+      RowBox[{"Flatten", "[", "blocks", "]"}]}], "]"}]}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "encrypt", " ", "a", " ", "block", " ", 
+     "using", " ", "a", " ", "key", " ", "matrix"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"encryptBlock", "[", 
+     RowBox[{"block_", ",", "keyMatrix_"}], "]"}], ":=", 
+    RowBox[{"Mod", "[", 
+     RowBox[{
+      RowBox[{"keyMatrix", ".", "block"}], ",", "256"}], "]"}]}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Function", " ", "to", " ", "decrypt", " ", "a", " ", "block", " ", 
+     "using", " ", "a", " ", "key", " ", "matrix"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"decryptBlock", "[", 
+     RowBox[{"block_", ",", "keyMatrix_"}], "]"}], ":=", 
+    RowBox[{"Mod", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Inverse", "[", 
+        RowBox[{"keyMatrix", ",", 
+         RowBox[{"Modulus", "->", "256"}]}], "]"}], ".", "block"}], ",", 
+      "256"}], "]"}]}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Example", " ", "usage"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"plaintext", "=", "\"\<HELLO WORLD\>\""}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"blockSize", "=", "4"}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Pad", " ", "plaintext"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"paddedPlaintext", "=", 
+     RowBox[{"padPlaintext", "[", 
+      RowBox[{"plaintext", ",", "blockSize"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Generate", " ", "invertible", " ", "key", " ", "matrix"}], 
+    "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"keyMatrix", "=", 
+     RowBox[{"generateInvertibleKeyMatrix", "[", "blockSize", "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Convert", " ", "plaintext", " ", "to", " ", "blocks"}], "*)"}], 
+   "\n", 
+   RowBox[{
+    RowBox[{"plaintextBlocks", "=", 
+     RowBox[{"stringToBlocks", "[", 
+      RowBox[{"paddedPlaintext", ",", "blockSize"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Encrypt", " ", "plaintext", " ", "blocks"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"ciphertextBlocks", "=", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"encryptBlock", "[", 
+        RowBox[{"#", ",", "keyMatrix"}], "]"}], "&"}], "/@", 
+      "plaintextBlocks"}]}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Convert", " ", "ciphertext", " ", "blocks", " ", "to", " ", "string"}], 
+    "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"ciphertext", "=", 
+     RowBox[{"blocksToString", "[", "ciphertextBlocks", "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Decrypt", " ", "ciphertext", " ", "blocks"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"decryptedBlocks", "=", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"decryptBlock", "[", 
+        RowBox[{"#", ",", "keyMatrix"}], "]"}], "&"}], "/@", 
+      "ciphertextBlocks"}]}], ";"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Convert", " ", "decrypted", " ", "blocks", " ", "to", " ", "string"}], 
+    "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"decryptedText", "=", 
+     RowBox[{"blocksToString", "[", "decryptedBlocks", "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Remove", " ", "padding", " ", "from", " ", "decrypted", " ", "text"}], 
+    "*)"}], "\n", 
+   RowBox[{"decryptedText", "=", 
+    RowBox[{"StringTrim", "[", 
+     RowBox[{"decryptedText", ",", 
+      RowBox[{"FromCharacterCode", "[", "blockSize", "]"}]}], "]"}]}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Output", " ", "results"}], "*)"}], "\n", 
+   RowBox[{"{", 
+    RowBox[{
+    "plaintext", ",", "paddedPlaintext", ",", "ciphertext", ",", 
+     "decryptedText"}], "}"}], "\n"}]}]], "Input",
+ CellChangeTimes->{{3.9310854780771613`*^9, 
+  3.9310854909173317`*^9}},ExpressionUUID->"70f4b01e-d789-401c-b92f-\
+f2c889fa2ab3"],
+
+Cell[BoxData["\<\"HELLO WORLD\"\>"], "Output",
+ CellChangeTimes->{3.9310854798877325`*^9},
+ CellLabel->
+  "Out[341]=",ExpressionUUID->"ff2b3676-b2cb-4aa6-a380-e1b831b20f37"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"HELLO WORLD\"\>", ",", "\<\"HELLO WORLD\.04\"\>", 
+   ",", "\<\"\[CapitalUGrave]\[CCedilla]\.03\[RegisteredTrademark]o\[Section]\
+\[CapitalUHat]7\[CapitalIGrave]\.8ex\[IHat]\"\>", 
+   ",", "\<\"HELLO WORLD\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{3.9310854798999996`*^9},
+ CellLabel->
+  "Out[342]=",ExpressionUUID->"b4e46026-3acb-422c-b51f-16d7340aa991"]
+}, Open  ]]
+}, Closed]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Advanced Encryption Standard (AES)", "Subsection",
+ CellChangeTimes->{{3.93679661678691*^9, 3.936796625304134*^9}, {
+  3.9367974754018993`*^9, 
+  3.936797496358797*^9}},ExpressionUUID->"11b91ffa-6725-48b4-96b5-\
+fa1d2b9f59e4"],
+
+Cell[TextData[{
+ "The Advanced Encryption Standard (AES) is a symmetric encryption algorithm, \
+meaning it uses the same key for both encryption and decryption. AES is \
+widely used to secure sensitive data and is the standard for encryption \
+across many industries, including in government communications.\n\n How AES \
+Works\nAES operates on fixed block sizes (128 bits or 16 bytes), and it \
+supports key lengths of 128, 192, or 256 bits. The key size determines the \
+number of rounds (cycles) the algorithm goes through:\n- AES-128 uses 10 \
+rounds.\n- AES-192 uses 12 rounds.\n- AES-256 uses 14 rounds.\n\n Steps in \
+AES Encryption:\n1. Key Expansion: The encryption key is expanded into a \
+series of round keys for each round of the AES algorithm.\n2. Initial Round:\n\
+   - AddRoundKey: The data block is combined with the first round key using a \
+bitwise XOR operation.\n3. Main Rounds (repeated for each round):\n   - \
+SubBytes: Each byte in the data block is replaced with another byte according \
+to a fixed substitution table (S-box).\n   - ShiftRows: Rows of the state (a \
+4x4 matrix representing the data block) are shifted by a certain number of \
+positions.\n   - MixColumns: Columns of the state matrix are mixed to spread \
+the bytes across multiple columns.\n   - AddRoundKey: Another round key is \
+XORed with the state matrix.\n4. Final Round: The same operations as the main \
+round, but without the MixColumns step.\n   \nAfter these steps, the \
+ciphertext is produced.\n\n Example: AES-128 Encryption\n\
+Let\[CloseCurlyQuote]s say we have the following:\n- Plaintext: `HELLO \
+WORLD!!!12` (16 bytes, 128 bits)\n- Key: `ThIsIsASecrEtKeY` (16 bytes, 128 \
+bits)\n\n 1. Initial Setup:\n- The plaintext is first converted into a 4x4 \
+matrix (128 bits or 16 bytes):\n   ```\n   H  E  L  L\n   O  W  O  R\n   L  D \
+ !  !\n   1  2  __ __\n   ```\n   (Where `__` is padding or a filler byte, \
+since AES works with fixed block sizes.)\n\n- The encryption key is also \
+transformed into a similar matrix.\n\n 2. Key Expansion:\n- The key \
+`ThIsIsASecrEtKeY` is expanded into multiple round keys.\n\n 3. Initial Round \
+(AddRoundKey):\n- The plaintext block is XORed with the initial round key, \
+producing an intermediate encrypted state.\n\n 4. Main Rounds:\n- In each \
+round, the steps of ",
+ StyleBox["SubBytes",
+  FontWeight->"Bold"],
+ ", ShiftRows, MixColumns, and AddRoundKey are performed. Each round \
+scrambles the data further and combines it with the round keys.\n\n 5. Final \
+Round:\n- The last round omits the MixColumns step, and the final encrypted \
+block (ciphertext) is produced.\n\n Decryption\nTo decrypt the ciphertext, \
+AES performs the inverse of each encryption step, using the same key, but in \
+reverse order (Inverse SubBytes, Inverse ShiftRows, etc.).\n\n Example \
+Ciphertext\nIf we encrypted the plaintext `HELLO WORLD!!!12` with the key \
+`ThIsIsASecrEtKeY`, the resulting ciphertext might look like this in \
+hexadecimal form:\n```\n4c 0f 74 b4 82 1e 3d 8f 2d b6 d5 90 1c 2d c7 68\n```\n\
+Only someone with the key `ThIsIsASecrEtKeY` can decrypt this ciphertext back \
+to the original message.\n\n Why AES Is Secure\n- Large key size: The key \
+space for AES-256 is enormous, making brute force attacks nearly impossible \
+with current technology.\n- Multiple rounds of encryption: Each round adds \
+complexity to the encryption, making it difficult to reverse-engineer without \
+the key.\n- Widespread usage and scrutiny: AES has been extensively studied \
+and vetted by the cryptographic community, and no major vulnerabilities have \
+been found.\n\nThis is a basic overview of how AES works. In practice, AES is \
+often combined with other techniques (like padding, modes of operation, etc.) \
+to further enhance security.\nTo implement the core concepts of the Advanced \
+Encryption Standard (AES) in Mathematica, you can follow this simplified \
+version that outlines the main stages of AES encryption. Keep in mind that a \
+full AES implementation includes various intricate operations like key \
+expansion, mix columns, and more. This example will cover the main structure \
+and operations of AES, demonstrating the fundamental steps such as SubBytes, \
+ShiftRows, and AddRoundKey.\n\nHere\[CloseCurlyQuote]s a step-by-step \
+Mathematica code that models a simplified version of AES\n"
+}], "Text",
+ CellChangeTimes->{{3.936712131018138*^9, 3.936712141032673*^9}, {
+  3.936797220041066*^9, 3.9367972951573963`*^9}, {3.936797354308643*^9, 
+  3.9367973547637887`*^9}},ExpressionUUID->"a9ee4343-3065-44d9-b861-\
+bec9c9aa6a5c"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"Simplified", " ", "AES", " ", "in", " ", "Mathematica"}], "*)"}], 
+  RowBox[{"(*", 
+   RowBox[{
+   "SubBytes", " ", "operation", " ", "using", " ", "a", " ", "small", " ", 
+    "substitution", " ", "box", " ", 
+    RowBox[{"(", 
+     RowBox[{"S", "-", "box"}], ")"}], " ", "for", " ", "demonstration"}], 
+   "*)"}], 
+  RowBox[{
+   RowBox[{
+    RowBox[{"subBytes", "[", "block_", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"sbox", ",", "substitutedBlock"}], "}"}], ",", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"A", " ", "small", " ", "S"}], "-", 
+        RowBox[{"box", " ", "for", " ", "demonstration", " ", "purposes"}]}], 
+       "*)"}], 
+      RowBox[{
+       RowBox[{"sbox", "=", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"0", "\[Rule]", "63"}], ",", 
+          RowBox[{"1", "\[Rule]", "7"}], ",", 
+          RowBox[{"2", "\[Rule]", "77"}], ",", 
+          RowBox[{"3", "\[Rule]", "94"}], ",", 
+          RowBox[{"4", "\[Rule]", "26"}], ",", 
+          RowBox[{"5", "\[Rule]", "46"}], ",", 
+          RowBox[{"6", "\[Rule]", "34"}], ",", 
+          RowBox[{"7", "\[Rule]", "19"}], ",", 
+          RowBox[{"8", "\[Rule]", "97"}], ",", 
+          RowBox[{"9", "\[Rule]", "25"}], ",", 
+          RowBox[{"10", "\[Rule]", "17"}], ",", 
+          RowBox[{"11", "\[Rule]", "15"}], ",", 
+          RowBox[{"12", "\[Rule]", "14"}], ",", 
+          RowBox[{"13", "\[Rule]", "5"}], ",", 
+          RowBox[{"14", "\[Rule]", "9"}], ",", 
+          RowBox[{"15", "\[Rule]", "1"}]}], "}"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{
+         "Substitute", " ", "each", " ", "byte", " ", "of", " ", "the", " ", 
+          "block", " ", "using", " ", "the", " ", "S"}], "-", "box"}], "*)"}], 
+       RowBox[{"substitutedBlock", "=", 
+        RowBox[{"block", "/.", "sbox"}]}], ";", "\[IndentingNewLine]", 
+       "substitutedBlock"}]}], "]"}]}], "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "Inverse", " ", "SubBytes", " ", "operation", " ", "using", " ", 
+      "inverse", " ", "S"}], "-", "box"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"invSubBytes", "[", "block_", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"invSbox", ",", "substitutedBlock"}], "}"}], ",", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Inverse", " ", "S"}], "-", 
+        RowBox[{"box", " ", "for", " ", "demonstration", " ", "purposes"}]}], 
+       "*)"}], 
+      RowBox[{
+       RowBox[{"invSbox", "=", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"63", "\[Rule]", "0"}], ",", 
+          RowBox[{"7", "\[Rule]", "1"}], ",", 
+          RowBox[{"77", "\[Rule]", "2"}], ",", 
+          RowBox[{"94", "\[Rule]", "3"}], ",", 
+          RowBox[{"26", "\[Rule]", "4"}], ",", 
+          RowBox[{"46", "\[Rule]", "5"}], ",", 
+          RowBox[{"34", "\[Rule]", "6"}], ",", 
+          RowBox[{"19", "\[Rule]", "7"}], ",", 
+          RowBox[{"97", "\[Rule]", "8"}], ",", 
+          RowBox[{"25", "\[Rule]", "9"}], ",", 
+          RowBox[{"17", "\[Rule]", "10"}], ",", 
+          RowBox[{"15", "\[Rule]", "11"}], ",", 
+          RowBox[{"14", "\[Rule]", "12"}], ",", 
+          RowBox[{"5", "\[Rule]", "13"}], ",", 
+          RowBox[{"9", "\[Rule]", "14"}], ",", 
+          RowBox[{"1", "\[Rule]", "15"}]}], "}"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{
+         "Substitute", " ", "each", " ", "byte", " ", "of", " ", "the", " ", 
+          "block", " ", "using", " ", "the", " ", "inverse", " ", "S"}], "-", 
+         "box"}], "*)"}], 
+       RowBox[{"substitutedBlock", "=", 
+        RowBox[{"block", "/.", "invSbox"}]}], ";", "\[IndentingNewLine]", 
+       "substitutedBlock"}]}], "]"}]}], "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"ShiftRows", " ", "operation"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"shiftRows", "[", "block_", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "shiftedBlock", "}"}], ",", 
+      RowBox[{"(*", 
+       RowBox[{"Shift", " ", "rows", " ", "to", " ", "the", " ", "left", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"row", " ", "1", " ", "shifted", " ", "by", " ", "1"}], ",", 
+          RowBox[{"row", " ", "2", " ", "shifted", " ", "by", " ", "2"}], ",", 
+          RowBox[{"etc", "."}]}], ")"}]}], "*)"}], 
+      RowBox[{
+       RowBox[{"shiftedBlock", "=", "block"}], ";", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"shiftedBlock", "[", 
+         RowBox[{"[", "2", "]"}], "]"}], "=", 
+        RowBox[{"RotateLeft", "[", 
+         RowBox[{
+          RowBox[{"shiftedBlock", "[", 
+           RowBox[{"[", "2", "]"}], "]"}], ",", "1"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"shiftedBlock", "[", 
+         RowBox[{"[", "3", "]"}], "]"}], "=", 
+        RowBox[{"RotateLeft", "[", 
+         RowBox[{
+          RowBox[{"shiftedBlock", "[", 
+           RowBox[{"[", "3", "]"}], "]"}], ",", "2"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"shiftedBlock", "[", 
+         RowBox[{"[", "4", "]"}], "]"}], "=", 
+        RowBox[{"RotateLeft", "[", 
+         RowBox[{
+          RowBox[{"shiftedBlock", "[", 
+           RowBox[{"[", "4", "]"}], "]"}], ",", "3"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "shiftedBlock"}]}], "]"}]}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Inverse", " ", "ShiftRows", " ", "operation"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"invShiftRows", "[", "block_", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "shiftedBlock", "}"}], ",", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Shift", " ", "rows", " ", "to", " ", "the", " ", "right", " ", "to", 
+        " ", "reverse", " ", "ShiftRows"}], "*)"}], 
+      RowBox[{
+       RowBox[{"shiftedBlock", "=", "block"}], ";", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"shiftedBlock", "[", 
+         RowBox[{"[", "2", "]"}], "]"}], "=", 
+        RowBox[{"RotateRight", "[", 
+         RowBox[{
+          RowBox[{"shiftedBlock", "[", 
+           RowBox[{"[", "2", "]"}], "]"}], ",", "1"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"shiftedBlock", "[", 
+         RowBox[{"[", "3", "]"}], "]"}], "=", 
+        RowBox[{"RotateRight", "[", 
+         RowBox[{
+          RowBox[{"shiftedBlock", "[", 
+           RowBox[{"[", "3", "]"}], "]"}], ",", "2"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"shiftedBlock", "[", 
+         RowBox[{"[", "4", "]"}], "]"}], "=", 
+        RowBox[{"RotateRight", "[", 
+         RowBox[{
+          RowBox[{"shiftedBlock", "[", 
+           RowBox[{"[", "4", "]"}], "]"}], ",", "3"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "shiftedBlock"}]}], "]"}]}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"AddRoundKey", " ", "operation", " ", 
+     RowBox[{"(", 
+      RowBox[{"XOR", " ", "with", " ", "key"}], ")"}]}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"addRoundKey", "[", 
+     RowBox[{"block_", ",", "roundKey_"}], "]"}], ":=", 
+    RowBox[{"BitXor", "[", 
+     RowBox[{"block", ",", "roundKey"}], "]"}]}], "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Helper", " ", "function", " ", "to", " ", "convert", " ", "text", " ", 
+     "to", " ", "a", " ", "4", "x4", " ", "matrix", " ", 
+     RowBox[{"(", 
+      RowBox[{"128", "-", 
+       RowBox[{"bit", " ", "block"}]}], ")"}]}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"textToBlock", "[", "text_String", "]"}], ":=", 
+    RowBox[{"Partition", "[", 
+     RowBox[{
+      RowBox[{"ToCharacterCode", "[", "text", "]"}], ",", "4"}], "]"}]}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Helper", " ", "function", " ", "to", " ", "convert", " ", "matrix", " ", 
+     "back", " ", "to", " ", "text"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"blockToText", "[", "block_", "]"}], ":=", 
+    RowBox[{"FromCharacterCode", "[", 
+     RowBox[{"Flatten", "[", "block", "]"}], "]"}]}], "\[IndentingNewLine]", 
+   "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Sample", " ", "key", " ", "for", " ", "AddRoundKey"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"sampleKey", "=", 
+     RowBox[{"textToBlock", "[", "\"\<ThIsSeCrEtKeY1234\>\"", "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"AES", " ", "Encryption", " ", "Procedure"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"aesEncrypt", "[", 
+     RowBox[{"plaintext_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "block", ",", "roundKey", ",", "substitutedBlock", ",", "shiftedBlock",
+         ",", "encryptedBlock"}], "}"}], ",", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Step", " ", "1"}], ":", 
+        RowBox[{"Convert", " ", "plaintext", " ", "to", " ", "block"}]}], 
+       "*)"}], 
+      RowBox[{
+       RowBox[{"block", "=", 
+        RowBox[{"textToBlock", "[", "plaintext", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Step", " ", "2"}], ":", 
+         RowBox[{"Initial", " ", "round", " ", 
+          RowBox[{"(", "AddRoundKey", ")"}]}]}], "*)"}], 
+       RowBox[{"roundKey", "=", "key"}], ";", 
+       RowBox[{"(*", 
+        RowBox[{"First", " ", "round", " ", "key"}], "*)"}], 
+       RowBox[{"block", "=", 
+        RowBox[{"addRoundKey", "[", 
+         RowBox[{"block", ",", "roundKey"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Step", " ", "3"}], ":", 
+         RowBox[{"SubBytes", " ", "operation"}]}], "*)"}], 
+       RowBox[{"substitutedBlock", "=", 
+        RowBox[{"subBytes", "[", "block", "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Step", " ", "4"}], ":", 
+         RowBox[{"ShiftRows", " ", "operation"}]}], "*)"}], 
+       RowBox[{"shiftedBlock", "=", 
+        RowBox[{"shiftRows", "[", "substitutedBlock", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Step", " ", "5"}], ":", 
+         RowBox[{"AddRoundKey", " ", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"for", " ", "the", " ", "final", " ", "round"}], ",", 
+            "typically"}], ")"}]}]}], "*)"}], 
+       RowBox[{"encryptedBlock", "=", 
+        RowBox[{"addRoundKey", "[", 
+         RowBox[{"shiftedBlock", ",", "roundKey"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+        "Return", " ", "the", " ", "encrypted", " ", "block", " ", "as", " ", 
+         "text"}], "*)"}], 
+       RowBox[{"blockToText", "[", "encryptedBlock", "]"}]}]}], "]"}]}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"AES", " ", "Decryption", " ", "Procedure"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"aesDecrypt", "[", 
+     RowBox[{"encryptedText_", ",", "key_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "block", ",", "roundKey", ",", "substitutedBlock", ",", "shiftedBlock",
+         ",", "decryptedBlock"}], "}"}], ",", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Step", " ", "1"}], ":", 
+        RowBox[{
+        "Convert", " ", "encrypted", " ", "text", " ", "to", " ", "block"}]}],
+        "*)"}], 
+      RowBox[{
+       RowBox[{"block", "=", 
+        RowBox[{"textToBlock", "[", "encryptedText", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Step", " ", "2"}], ":", 
+         RowBox[{"Initial", " ", "round", " ", 
+          RowBox[{"(", "AddRoundKey", ")"}]}]}], "*)"}], 
+       RowBox[{"roundKey", "=", "key"}], ";", 
+       RowBox[{"(*", 
+        RowBox[{"First", " ", "round", " ", "key"}], "*)"}], 
+       RowBox[{"block", "=", 
+        RowBox[{"addRoundKey", "[", 
+         RowBox[{"block", ",", "roundKey"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Step", " ", "3"}], ":", 
+         RowBox[{"Inverse", " ", "ShiftRows", " ", "operation"}]}], "*)"}], 
+       RowBox[{"shiftedBlock", "=", 
+        RowBox[{"invShiftRows", "[", "block", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Step", " ", "4"}], ":", 
+         RowBox[{"Inverse", " ", "SubBytes", " ", "operation"}]}], "*)"}], 
+       RowBox[{"substitutedBlock", "=", 
+        RowBox[{"invSubBytes", "[", "shiftedBlock", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Step", " ", "5"}], ":", 
+         RowBox[{"AddRoundKey", " ", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"for", " ", "the", " ", "final", " ", "round"}], ",", 
+            "typically"}], ")"}]}]}], "*)"}], 
+       RowBox[{"decryptedBlock", "=", 
+        RowBox[{"addRoundKey", "[", 
+         RowBox[{"substitutedBlock", ",", "roundKey"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+        "Return", " ", "the", " ", "decrypted", " ", "block", " ", "as", " ", 
+         "text"}], "*)"}], 
+       RowBox[{"blockToText", "[", "decryptedBlock", "]"}]}]}], "]"}]}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{"(*", 
+    RowBox[{"Example", " ", "usage"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"plaintext", "=", "\"\<helloworld123456\>\""}], ";", 
+    RowBox[{"(*", 
+     RowBox[{"16", " ", "bytes", " ", 
+      RowBox[{"(", 
+       RowBox[{"128", " ", "bits"}], ")"}]}], "*)"}], 
+    RowBox[{"encryptedText", "=", 
+     RowBox[{"aesEncrypt", "[", 
+      RowBox[{"plaintext", ",", "sampleKey"}], "]"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"decryptedText", "=", 
+     RowBox[{"aesDecrypt", "[", 
+      RowBox[{"encryptedText", ",", "sampleKey"}], "]"}]}], ";"}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<Original Text: \>\"", ",", "plaintext"}], "]"}], ";"}], 
+   "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<Encrypted Text: \>\"", ",", "encryptedText"}], "]"}], ";"}],
+    "\n", 
+   RowBox[{
+    RowBox[{"Print", "[", 
+     RowBox[{"\"\<Decrypted Text: \>\"", ",", "decryptedText"}], "]"}], ";"}],
+    "\n"}]}]], "Input",
+ CellChangeTimes->{{3.9367974408106775`*^9, 3.9367974408263874`*^9}},
+ CellLabel->"In[98]:=",ExpressionUUID->"7e580f06-adc3-43f6-a7d5-a044e25796d3"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Original Text: \"\>", 
+   "\[InvisibleSpace]", "\<\"helloworld123456\"\>"}],
+  SequenceForm["Original Text: ", "helloworld123456"],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.93679744166415*^9},
+ CellLabel->
+  "During evaluation of \
+In[98]:=",ExpressionUUID->"d0dd49b2-8261-4785-b8e2-8c8ad45614b0"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Encrypted Text: \"\>", 
+   "\[InvisibleSpace]", "\<\"hmllAI|N?#buw[\.1c \"\>"}],
+  SequenceForm["Encrypted Text: ", "hmllAI|N?#buw[\.1c "],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.93679744166415*^9},
+ CellLabel->
+  "During evaluation of \
+In[98]:=",ExpressionUUID->"02dd48c1-b8f2-4f92-ae33-743a92758371"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Decrypted Text: \"\>", 
+   "\[InvisibleSpace]", "\<\"helloworld123456\"\>"}],
+  SequenceForm["Decrypted Text: ", "helloworld123456"],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.9367974416869926`*^9},
+ CellLabel->
+  "During evaluation of \
+In[98]:=",ExpressionUUID->"7d237778-8043-47e4-86b6-32981a7e1e21"]
+}, Open  ]]
+}, Open  ]],
+
+Cell["\<\
+ Explanation of the Code Changes:
+1. Inverse SubBytes (`invSubBytes`): This function uses the inverse of the \
+S-box, allowing decryption to reverse the SubBytes operation.
+2. Inverse ShiftRows (`invShiftRows`): This function shifts the rows in the \
+opposite direction to reverse the ShiftRows operation during decryption.
+3. aesDecrypt: The decryption process applies the reverse operations in \
+reverse order (Inverse ShiftRows, Inverse SubBytes, AddRoundKey) to recover \
+the original plaintext from the ciphertext.
+
+ Example Output:
+```mathematica
+Original Text: helloworld123456
+Encrypted Text: \.9fw\[CapitalOTilde]?\[Thorn]\[CapitalThorn]wT\[CCedilla]v\
+\.bcW\[UAcute]
+Decrypted Text: helloworld123456
+```
+
+ Notes:
+- This example follows the basic structure of AES encryption and decryption, \
+but it is a simplified version. A full AES implementation would include key \
+expansion and multiple rounds.
+- The operations are reversed during decryption to return to the original \
+plaintext using the same key.
+- The code will output the original, encrypted, and decrypted text, \
+demonstrating the encryption-decryption cycle.
+
+This code illustrates how AES encryption and decryption work, albeit in a \
+simplified manner for clarity.\
+\>", "Text",
+ CellChangeTimes->{
+  3.936712160360995*^9, {3.9367972951730967`*^9, 
+   3.936797354842309*^9}},ExpressionUUID->"b396143f-599e-48e3-84e9-\
+896bbe00b4f0"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Rivest-Shamir-Adleman  (RSA)", "Subsection",
+ CellChangeTimes->{{3.93679661678691*^9, 3.936796625304134*^9}, {
+  3.9367974754018993`*^9, 3.936797496358797*^9}, {3.936797734606146*^9, 
+  3.936797741992073*^9}},ExpressionUUID->"f398a0be-8227-479e-9079-\
+58fbedeb053a"],
+
+Cell["\<\
+The RSA (Rivest\[Dash]Shamir\[Dash]Adleman) algorithm is a widely used \
+cryptosystem for secure data transmission. It is based on the mathematical \
+difficulty of factoring large integers, a problem that remains \
+computationally expensive and infeasible for very large numbers.
+
+Here\[CloseCurlyQuote]s a step-by-step explanation of how RSA works:
+
+### 1. **Key Generation:**
+   RSA involves the generation of a *public key* and a *private key*. The \
+public key is shared with everyone, and the private key is kept secret.
+
+   **Steps:**
+   
+   1.1 **Choose two large prime numbers** \\( p \\) and \\( q \\).
+   These prime numbers should be large (hundreds of digits) to ensure security.
+
+   1.2 **Calculate the modulus \\( n \\):**
+   \\[
+   n = p \\times q
+   \\]
+   The number \\( n \\) is used as part of both the public and private keys.
+
+   1.3 **Calculate Euler\[CloseCurlyQuote]s totient \\( \\phi(n) \\):**
+   \\[
+   \\phi(n) = (p - 1) \\times (q - 1)
+   \\]
+   This is the number of integers less than \\( n \\) that are coprime with \
+\\( n \\).
+
+   1.4 **Choose the public exponent \\( e \\):**
+   Choose an integer \\( e \\) such that \\( 1 < e < \\phi(n) \\), and \\( e \
+\\) is coprime with \\( \\phi(n) \\) (i.e., the greatest common divisor \\( \
+\\gcd(e, \\phi(n)) = 1 \\)). Typically, \\( e = 65537 \\) is a common choice \
+because it offers a good balance between security and efficiency.
+
+   1.5 **Determine the private exponent \\( d \\):**
+   The private exponent \\( d \\) is the modular inverse of \\( e \\) with \
+respect to \\( \\phi(n) \\), meaning it satisfies the equation:
+   \\[
+   d \\times e \\equiv 1 \\pmod{\\phi(n)}
+   \\]
+   In other words, \\( d \\) is the number that, when multiplied by \\( e \
+\\), gives a remainder of 1 when divided by \\( \\phi(n) \\).
+
+### 2. **Public and Private Keys:**
+   - The **public key** consists of \\( (n, e) \\).
+   - The **private key** consists of \\( (n, d) \\).
+
+### 3. **Encryption:**
+   To encrypt a message \\( M \\), the sender uses the recipient\
+\[CloseCurlyQuote]s public key \\( (n, e) \\). The message \\( M \\) must be \
+converted into a numerical form (often using a scheme like padding to make \
+the message smaller than \\( n \\)).
+
+   The encrypted message \\( C \\) is calculated as:
+   \\[
+   C = M^e \\mod n
+   \\]
+   The result, \\( C \\), is the ciphertext, which can be transmitted \
+securely to the recipient.
+
+### 4. **Decryption:**
+   The recipient, who possesses the private key \\( (n, d) \\), decrypts the \
+ciphertext \\( C \\) to recover the original message \\( M \\).
+
+   The decryption process is:
+   \\[
+   M = C^d \\mod n
+   \\]
+   This works because of the mathematical properties of modular arithmetic \
+and the way \\( e \\) and \\( d \\) were chosen.
+
+### **Security of RSA:**
+   The security of RSA relies on the difficulty of factoring the large number \
+\\( n \\) back into its prime factors \\( p \\) and \\( q \\). If an attacker \
+could factor \\( n \\), they could compute \\( \\phi(n) \\), and from that, \
+they could derive the private key \\( d \\). However, for sufficiently large \
+primes (e.g., 2048-bit keys), factoring \\( n \\) is computationally \
+infeasible with current technology.
+
+### **Summary:**
+- **Public key**: \\( (n, e) \\)
+- **Private key**: \\( (n, d) \\)
+- **Encryption**: \\( C = M^e \\mod n \\)
+- **Decryption**: \\( M = C^d \\mod n \\)
+
+RSA\[CloseCurlyQuote]s key strength lies in the large primes used and the \
+modular arithmetic that makes decryption impossible without knowing \\( d \
+\\), even with knowledge of \\( e \\) and \\( n \\).\
+\>", "Text",
+ CellChangeTimes->{
+  3.9367980429535327`*^9},ExpressionUUID->"a539116e-b09c-4a81-a89b-\
+0882c9eac0dd"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ClearAll", ";", 
+   RowBox[{"(*", 
+    RowBox[{"Key", " ", "Generation"}], "*)"}], 
+   RowBox[{
+    RowBox[{"rsaKeyGen", "[", "bitLength_", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "p", ",", "q", ",", "n", ",", "phi", ",", "e", ",", "d", ",", 
+        "publicKey", ",", "privateKey"}], "}"}], ",", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"Step", " ", "1"}], ":", 
+        RowBox[{
+        "Generate", " ", "two", " ", "large", " ", "prime", " ", "numbers", 
+         " ", "p", " ", "and", " ", "q"}]}], "*)"}], 
+      RowBox[{
+       RowBox[{"p", "=", 
+        RowBox[{
+         RowBox[{"RandomPrime", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"2", "^", 
+              RowBox[{"(", 
+               RowBox[{"bitLength", "-", "1"}], ")"}]}], ",", 
+             RowBox[{"2", "^", "bitLength"}]}], "}"}], ",", "1"}], "]"}], "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"q", "=", 
+        RowBox[{
+         RowBox[{"RandomPrime", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"2", "^", 
+              RowBox[{"(", 
+               RowBox[{"bitLength", "-", "1"}], ")"}]}], ",", 
+             RowBox[{"2", "^", "bitLength"}]}], "}"}], ",", "1"}], "]"}], "[", 
+         RowBox[{"[", "1", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Step", " ", "2"}], ":", 
+         RowBox[{"Calculate", " ", "n", " ", "and", " ", "phi", 
+          RowBox[{"(", "n", ")"}]}]}], "*)"}], 
+       RowBox[{"n", "=", 
+        RowBox[{"p", "*", "q"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"phi", "=", 
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{"p", "-", "1"}], ")"}], "*", 
+         RowBox[{"(", 
+          RowBox[{"q", "-", "1"}], ")"}]}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Step", " ", "3"}], ":", 
+          RowBox[{
+           RowBox[{"Choose", " ", "e", " ", "such", " ", "that", " ", "1"}], 
+           "<", "e", "<", 
+           RowBox[{"phi", " ", "and", " ", "GCD", 
+            RowBox[{"(", 
+             RowBox[{"e", ",", "phi"}], ")"}]}]}]}], "=", "1"}], "*)"}], 
+       RowBox[{"e", "=", "65537"}], ";", 
+       RowBox[{"(*", 
+        RowBox[{"Commonly", " ", "used", " ", "public", " ", "exponent"}], 
+        "*)"}], 
+       RowBox[{"While", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"GCD", "[", 
+           RowBox[{"e", ",", "phi"}], "]"}], "\[NotEqual]", "1"}], ",", 
+         RowBox[{"e", "++"}]}], "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Step", " ", "4"}], ":", 
+          RowBox[{
+          "Calculate", " ", "the", " ", "private", " ", "key", " ", "d", " ", 
+           "such", " ", "that", " ", 
+           RowBox[{"(", 
+            RowBox[{"d", "*", "e"}], ")"}], " ", "%", " ", "phi"}]}], "=", 
+         "1"}], "*)"}], 
+       RowBox[{"d", "=", 
+        RowBox[{"PowerMod", "[", 
+         RowBox[{"e", ",", 
+          RowBox[{"-", "1"}], ",", "phi"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{"Public", " ", "and", " ", "private", " ", "keys"}], "*)"}], 
+       RowBox[{"publicKey", "=", 
+        RowBox[{"{", 
+         RowBox[{"n", ",", "e"}], "}"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"privateKey", "=", 
+        RowBox[{"{", 
+         RowBox[{"n", ",", "d"}], "}"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"{", 
+        RowBox[{"publicKey", ",", "privateKey"}], "}"}]}]}], "]"}]}]}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Encryption", ":", 
+    RowBox[{
+    "encrypt", " ", "message", " ", "m", " ", "using", " ", "public", " ", 
+     "key", " ", 
+     RowBox[{"{", 
+      RowBox[{"n", ",", "e"}], "}"}]}]}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"rsaEncrypt", "[", 
+    RowBox[{"m_Integer", ",", 
+     RowBox[{"{", 
+      RowBox[{"n_", ",", "e_"}], "}"}]}], "]"}], ":=", 
+   RowBox[{"PowerMod", "[", 
+    RowBox[{"m", ",", "e", ",", "n"}], "]"}]}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Decryption", ":", 
+    RowBox[{
+    "decrypt", " ", "ciphertext", " ", "c", " ", "using", " ", "private", " ",
+      "key", " ", 
+     RowBox[{"{", 
+      RowBox[{"n", ",", "d"}], "}"}]}]}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"rsaDecrypt", "[", 
+    RowBox[{"c_Integer", ",", 
+     RowBox[{"{", 
+      RowBox[{"n_", ",", "d_"}], "}"}]}], "]"}], ":=", 
+   RowBox[{"PowerMod", "[", 
+    RowBox[{"c", ",", "d", ",", "n"}], "]"}]}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Encode", " ", "the", " ", "string", " ", "message", " ", "to", " ", "a", 
+    " ", "number", " ", "sequence", " ", "using", " ", "ASCII", " ", 
+    "values"}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"encodeStringToNumbers", "[", "str_", "]"}], ":=", 
+   RowBox[{"ToCharacterCode", "[", "str", "]"}]}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Decode", " ", "the", " ", "number", " ", "sequence", " ", "back", " ", 
+    "to", " ", "the", " ", "original", " ", "string"}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"decodeNumbersToString", "[", "numList_", "]"}], ":=", 
+   RowBox[{"FromCharacterCode", "[", "numList", "]"}]}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+    "Encrypt", " ", "the", " ", "entire", " ", "string", " ", "by", " ", 
+     "encoding"}], ",", 
+    RowBox[{"encrypting", " ", "each", " ", "character"}], ",", 
+    RowBox[{
+    "and", " ", "returning", " ", "the", " ", "list", " ", "of", " ", 
+     "encrypted", " ", "values"}]}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"rsaEncryptString", "[", 
+    RowBox[{"str_", ",", "publicKey_"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"encodedList", ",", "encryptedList"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"encodedList", "=", 
+       RowBox[{"encodeStringToNumbers", "[", "str", "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"encryptedList", "=", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"rsaEncrypt", "[", 
+          RowBox[{"#", ",", "publicKey"}], "]"}], "&"}], "/@", 
+        "encodedList"}]}], ";", "\[IndentingNewLine]", "encryptedList"}]}], 
+    "]"}]}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Decrypt", " ", "the", " ", "encrypted", " ", "list", " ", "and", " ", 
+    "return", " ", "the", " ", "original", " ", "string"}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"rsaDecryptString", "[", 
+    RowBox[{"encryptedList_", ",", "privateKey_"}], "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"decryptedList", ",", "decodedString"}], "}"}], ",", 
+     RowBox[{
+      RowBox[{"decryptedList", "=", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"rsaDecrypt", "[", 
+          RowBox[{"#", ",", "privateKey"}], "]"}], "&"}], "/@", 
+        "encryptedList"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"decodedString", "=", 
+       RowBox[{"decodeNumbersToString", "[", "decryptedList", "]"}]}], ";", 
+      "\[IndentingNewLine]", "decodedString"}]}], "]"}]}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Test", " ", "the", " ", "implementation"}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"bitLength", "=", "8"}], ";", 
+   RowBox[{"(*", 
+    RowBox[{
+    "This", " ", "is", " ", "a", " ", "small", " ", "bit", " ", "length", " ",
+      "for", " ", 
+     RowBox[{"illustration", ".", "Use"}], " ", "larger", " ", "for", " ", 
+     "real", " ", 
+     RowBox[{"security", "."}]}], "*)"}], 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"publicKey", ",", "privateKey"}], "}"}], "=", 
+    RowBox[{"rsaKeyGen", "[", "bitLength", "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Message", " ", "to", " ", "encrypt"}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"message", "=", "\"\<HELLO WORLD\>\""}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Encrypt", " ", "the", " ", "message"}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{"encryptedMessage", "=", 
+   RowBox[{"rsaEncryptString", "[", 
+    RowBox[{"message", ",", "publicKey"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Print", "[", 
+    RowBox[{"\"\<Encrypted Message: \>\"", ",", "encryptedMessage"}], "]"}], 
+   ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Decrypt", " ", "the", " ", "message"}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{"decryptedMessage", "=", 
+   RowBox[{"rsaDecryptString", "[", 
+    RowBox[{"encryptedMessage", ",", "privateKey"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<Decrypted Message: \>\"", ",", "decryptedMessage"}], "]"}], 
+  ";"}], "\n"}], "Input",
+ CellChangeTimes->{{3.936798211108862*^9, 3.9367982156270742`*^9}, {
+  3.93679824889795*^9, 3.93679825513952*^9}},
+ CellLabel->
+  "In[221]:=",ExpressionUUID->"1d42a17f-efcc-473e-aece-7c14bb4e4f43"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Encrypted Message: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "7609", ",", "19486", ",", "25612", ",", "25612", ",", "17849", ",", 
+     "29454", ",", "18138", ",", "17849", ",", "7567", ",", "25612", ",", 
+     "12504"}], "}"}]}],
+  SequenceForm[
+  "Encrypted Message: ", {7609, 19486, 25612, 25612, 17849, 29454, 18138, 
+   17849, 7567, 25612, 12504}],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.9367980919928055`*^9, {3.9367982161174135`*^9, 3.936798256073097*^9}},
+ CellLabel->
+  "During evaluation of \
+In[221]:=",ExpressionUUID->"8e3973fa-b350-4225-b58f-eea7de695b43"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Decrypted Message: \"\>", 
+   "\[InvisibleSpace]", "\<\"HELLO WORLD\"\>"}],
+  SequenceForm["Decrypted Message: ", "HELLO WORLD"],
+  Editable->False]], "Print",
+ CellChangeTimes->{
+  3.9367980919928055`*^9, {3.9367982161174135`*^9, 3.9367982560887213`*^9}},
+ CellLabel->
+  "During evaluation of \
+In[221]:=",ExpressionUUID->"d2cb00e2-78f1-4426-b152-f78fb320b0c2"]
+}, Open  ]]
+}, Open  ]],
+
+Cell["\<\
+### Explanation of the new parts:
+
+1. **Encoding and Decoding (`encodeStringToNumbers`, \
+`decodeNumbersToString`)**:
+   - `encodeStringToNumbers` takes the input string (e.g., \
+\[OpenCurlyDoubleQuote]HELLO WORLD\[CloseCurlyDoubleQuote]) and converts each \
+character into its ASCII value using `ToCharacterCode`.
+   - `decodeNumbersToString` converts the ASCII values back to the original \
+string using `FromCharacterCode`.
+
+2. **String Encryption and Decryption**:
+   - `rsaEncryptString` encrypts each ASCII value (representing each \
+character in the string) individually and returns a list of encrypted numbers.
+   - `rsaDecryptString` decrypts each number in the list, then converts the \
+decrypted ASCII values back into the original string.
+
+### Example Test:
+
+- The phrase \[OpenCurlyDoubleQuote]HELLO WORLD\[CloseCurlyDoubleQuote] is \
+encrypted by encoding each character into its ASCII value, applying RSA \
+encryption to each, and then decrypted back into the original phrase.
+
+This ensures that both the encryption and decryption processes are working \
+with actual strings, making the process more applicable to real-world \
+scenarios where you need to encrypt messages rather than just numbers.\
+\>", "Text",
+ CellChangeTimes->{{3.9367982809823647`*^9, 
+  3.936798319845796*^9}},ExpressionUUID->"e7bedf2a-a796-4ef6-869f-\
+1c6606d63eb3"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Diffie-Hellman", "Subsection",
+ CellChangeTimes->{{3.93679661678691*^9, 3.936796625304134*^9}, {
+  3.9367974754018993`*^9, 3.936797496358797*^9}, {3.936797734606146*^9, 
+  3.936797741992073*^9}, {3.936798430214559*^9, 
+  3.9367984416773987`*^9}},ExpressionUUID->"a888c634-ade7-43a3-bde6-\
+190b48446a7f"],
+
+Cell["\<\
+The **Diffie-Hellman key exchange algorithm** is a method used to securely \
+exchange cryptographic keys over a public channel. It allows two parties to \
+establish a shared secret, which they can use for secure communication, \
+without ever sending the secret itself over the public network. The security \
+of Diffie-Hellman relies on the difficulty of solving the **discrete \
+logarithm problem**.
+
+### How Diffie-Hellman Works:
+
+Let\[CloseCurlyQuote]s break down the process step by step:
+
+### 1. **Public Parameters:**
+Both parties agree on two public numbers:
+   - \\( g \\): a **generator** (also called a base), which is a primitive \
+root modulo \\( p \\).
+   - \\( p \\): a **large prime number**.
+
+These values \\( g \\) and \\( p \\) are publicly known and do not need to be \
+secret.
+
+### 2. **Private Keys:**
+Each party generates a private key:
+   - Alice chooses a **private key** \\( a \\), which is a random number.
+   - Bob chooses a **private key** \\( b \\), which is also a random number.
+
+These private keys are kept secret by Alice and Bob.
+
+### 3. **Public Keys:**
+Each party computes a **public key** to share with the other party:
+   - Alice computes her public key \\( A \\) as:
+     \\[
+     A = g^a \\mod p
+     \\]
+   - Bob computes his public key \\( B \\) as:
+     \\[
+     B = g^b \\mod p
+     \\]
+   
+Alice sends \\( A \\) to Bob, and Bob sends \\( B \\) to Alice over the \
+public channel.
+
+### 4. **Shared Secret Calculation:**
+Each party uses the other party\[CloseCurlyQuote]s public key along with \
+their own private key to compute the shared secret:
+   - Alice computes the shared secret \\( S_A \\) using \
+Bob\[CloseCurlyQuote]s public key \\( B \\) and her private key \\( a \\):
+     \\[
+     S_A = B^a \\mod p
+     \\]
+   - Bob computes the shared secret \\( S_B \\) using \
+Alice\[CloseCurlyQuote]s public key \\( A \\) and his private key \\( b \\):
+     \\[
+     S_B = A^b \\mod p
+     \\]
+
+Because of the mathematical properties of modular arithmetic:
+   \\[
+   B^a \\mod p = A^b \\mod p
+   \\]
+Thus, both Alice and Bob end up with the same shared secret:
+   \\[
+   S = g^{ab} \\mod p
+   \\]
+This shared secret can now be used as a key for symmetric encryption to \
+communicate securely.
+
+### Example of Diffie-Hellman:
+
+Let\[CloseCurlyQuote]s go through a simplified numerical example with small \
+numbers:
+
+1. **Public parameters:**
+   - \\( g = 5 \\) (the generator).
+   - \\( p = 23 \\) (the prime number).
+
+2. **Private keys:**
+   - Alice chooses \\( a = 6 \\) (her private key).
+   - Bob chooses \\( b = 15 \\) (his private key).
+
+3. **Public keys:**
+   - Alice computes her public key:
+     \\[
+     A = 5^6 \\mod 23 = 15625 \\mod 23 = 8
+     \\]
+   - Bob computes his public key:
+     \\[
+     B = 5^{15} \\mod 23 = 30517578125 \\mod 23 = 19
+     \\]
+
+4. **Exchange of public keys:**
+   - Alice sends \\( A = 8 \\) to Bob.
+   - Bob sends \\( B = 19 \\) to Alice.
+
+5. **Shared secret:**
+   - Alice computes the shared secret using Bob\[CloseCurlyQuote]s public key \
+\\( B = 19 \\):
+     \\[
+     S_A = 19^6 \\mod 23 = 47045881 \\mod 23 = 2
+     \\]
+   - Bob computes the shared secret using Alice\[CloseCurlyQuote]s public key \
+\\( A = 8 \\):
+     \\[
+     S_B = 8^{15} \\mod 23 = 35184372088832 \\mod 23 = 2
+     \\]
+
+Both Alice and Bob have the same shared secret \\( S = 2 \\), which they can \
+now use for further secure communication.
+
+### Why is Diffie-Hellman Secure?
+
+The security of Diffie-Hellman comes from the difficulty of the **discrete \
+logarithm problem**. Given \\( g \\), \\( p \\), and \\( g^a \\mod p \\), it \
+is computationally infeasible to determine \\( a \\) (the private key) when \
+\\( p \\) is large enough. This problem is believed to be hard for classical \
+computers, ensuring the security of the key exchange.
+
+### Summary:
+
+- **Diffie-Hellman** allows two parties to securely establish a shared secret \
+over a public channel.
+- Each party has a private key and computes a public key to share.
+- Using the public keys, both parties compute the same shared secret, which \
+they can use to encrypt their communication.
+- The algorithm\[CloseCurlyQuote]s security depends on the difficulty of \
+solving the discrete logarithm problem.\
+\>", "Text",
+ CellChangeTimes->{
+  3.936798467860238*^9, {3.9367990846636868`*^9, 
+   3.936799084774503*^9}},ExpressionUUID->"a454a1a6-3d21-4cba-9d85-\
+70951a467cff"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"ClearAll", ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "1"}], ":", 
+    RowBox[{
+     RowBox[{"Parameters", " ", "for", " ", "Diffie"}], "-", "Hellman"}]}], 
+   "*)"}], 
+  RowBox[{
+   RowBox[{"p", "=", "23"}], ";", 
+   RowBox[{"(*", 
+    RowBox[{"A", " ", "prime", " ", "number"}], "*)"}], 
+   RowBox[{"g", "=", "5"}], ";", 
+   RowBox[{"(*", 
+    RowBox[{"A", " ", "primitive", " ", "root", " ", "modulo", " ", "p"}], 
+    "*)"}], 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Step", " ", "2"}], ":", 
+     RowBox[{
+     "Alice", " ", "and", " ", "Bob", " ", "choose", " ", "their", " ", 
+      "private", " ", "keys"}]}], "*)"}], 
+   RowBox[{"privateKeyAlice", "=", "6"}], ";", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Alice", "'"}], "s", " ", "private", " ", "key"}], "*)"}], 
+   RowBox[{"privateKeyBob", "=", "15"}], ";", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Bob", "'"}], "s", " ", "private", " ", "key"}], "*)"}], 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Step", " ", "3"}], ":", 
+     RowBox[{
+     "Alice", " ", "and", " ", "Bob", " ", "compute", " ", "their", " ", 
+      "public", " ", "keys"}]}], "*)"}], 
+   RowBox[{"publicKeyAlice", "=", 
+    RowBox[{"PowerMod", "[", 
+     RowBox[{"g", ",", "privateKeyAlice", ",", "p"}], "]"}]}], ";", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Alice", "'"}], "s", " ", "public", " ", "key"}], "*)"}], 
+   RowBox[{"publicKeyBob", "=", 
+    RowBox[{"PowerMod", "[", 
+     RowBox[{"g", ",", "privateKeyBob", ",", "p"}], "]"}]}], ";", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Bob", "'"}], "s", " ", "public", " ", "key"}], "*)"}], 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Step", " ", "4"}], ":", 
+     RowBox[{
+     "Both", " ", "compute", " ", "the", " ", "shared", " ", "secret"}]}], 
+    "*)"}], 
+   RowBox[{"sharedSecretAlice", "=", 
+    RowBox[{"PowerMod", "[", 
+     RowBox[{"publicKeyBob", ",", "privateKeyAlice", ",", "p"}], "]"}]}], 
+   ";"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"sharedSecretBob", "=", 
+    RowBox[{"PowerMod", "[", 
+     RowBox[{"publicKeyAlice", ",", "privateKeyBob", ",", "p"}], "]"}]}], 
+   ";"}], "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+   "The", " ", "shared", " ", "secret", " ", "should", " ", "be", " ", "the", 
+    " ", "same", " ", "for", " ", "both", " ", "Alice", " ", "and", " ", 
+    "Bob"}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"sharedSecretAlice", "\[Equal]", "sharedSecretBob"}], "\n", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "5"}], ":", 
+    RowBox[{
+    "Use", " ", "the", " ", "shared", " ", "secret", " ", "as", " ", "a", " ",
+      "key", " ", "for", " ", "encryption"}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"sharedKey", "=", "sharedSecretAlice"}], ";"}], "\n", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Message", " ", "to", " ", 
+    RowBox[{"encode", ":", 
+     RowBox[{"HELLO", " ", "WORLD"}]}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"message", "=", "\"\<HELLO WORLD\>\""}], ";"}], "\n", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+   "Convert", " ", "message", " ", "to", " ", "ASCII", " ", "values"}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"asciiValues", "=", 
+    RowBox[{"ToCharacterCode", "[", "message", "]"}]}], ";"}], "\n", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "6"}], ":", 
+    RowBox[{
+    "Encrypt", " ", "the", " ", "message", " ", "by", " ", "adding", " ", 
+     "the", " ", "shared", " ", "key"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"encryptedMessage", "=", 
+    RowBox[{"Mod", "[", 
+     RowBox[{
+      RowBox[{"asciiValues", "+", "sharedKey"}], ",", "256"}], "]"}]}], ";"}],
+   "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "7"}], ":", 
+    RowBox[{
+    "Decrypt", " ", "the", " ", "message", " ", "by", " ", "subtracting", " ",
+      "the", " ", "shared", " ", "key"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"decryptedMessage", "=", 
+    RowBox[{"Mod", "[", 
+     RowBox[{
+      RowBox[{"encryptedMessage", "-", "sharedKey"}], ",", "256"}], "]"}]}], 
+   ";"}], "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Convert", " ", "back", " ", "to", " ", "characters"}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"decryptedText", "=", 
+    RowBox[{"FromCharacterCode", "[", "decryptedMessage", "]"}]}], ";"}], 
+  "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Output", " ", "the", " ", "results"}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"\"\<Original Message\>\"", "\[Rule]", "message"}], ",", 
+   RowBox[{"\"\<ASCII Values\>\"", "\[Rule]", "asciiValues"}], ",", 
+   RowBox[{
+   "\"\<Encrypted Message (ASCII Values)\>\"", "\[Rule]", 
+    "encryptedMessage"}], ",", 
+   RowBox[{"\"\<Decrypted ASCII Values\>\"", "\[Rule]", "decryptedMessage"}], 
+   ",", 
+   RowBox[{"\"\<Decrypted Text\>\"", "\[Rule]", "decryptedText"}]}], 
+  "}"}]}], "Input",
+ CellChangeTimes->{{3.936799181154338*^9, 3.9367992072433863`*^9}, {
+  3.936799365437126*^9, 3.936799381822136*^9}},
+ CellLabel->
+  "In[291]:=",ExpressionUUID->"f0821368-819b-4aa7-b716-977ae480b44a"],
+
+Cell[BoxData["True"], "Output",
+ CellChangeTimes->{{3.9367993666629944`*^9, 3.936799383179884*^9}},
+ CellLabel->
+  "Out[294]=",ExpressionUUID->"0c396c5e-e822-437d-a239-d5f32993183a"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"\<\"Original Message\"\>", "\[Rule]", "\<\"HELLO WORLD\"\>"}], 
+   ",", 
+   RowBox[{"\<\"ASCII Values\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "72", ",", "69", ",", "76", ",", "76", ",", "79", ",", "32", ",", "87", 
+      ",", "79", ",", "82", ",", "76", ",", "68"}], "}"}]}], ",", 
+   RowBox[{"\<\"Encrypted Message (ASCII Values)\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "74", ",", "71", ",", "78", ",", "78", ",", "81", ",", "34", ",", "89", 
+      ",", "81", ",", "84", ",", "78", ",", "70"}], "}"}]}], ",", 
+   RowBox[{"\<\"Decrypted ASCII Values\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "72", ",", "69", ",", "76", ",", "76", ",", "79", ",", "32", ",", "87", 
+      ",", "79", ",", "82", ",", "76", ",", "68"}], "}"}]}], ",", 
+   RowBox[{"\<\"Decrypted Text\"\>", "\[Rule]", "\<\"HELLO WORLD\"\>"}]}], 
+  "}"}]], "Output",
+ CellChangeTimes->{{3.9367993666629944`*^9, 3.936799383179884*^9}},
+ CellLabel->
+  "Out[301]=",ExpressionUUID->"c8bf3482-f911-4267-ab97-9fb06d8c2cb7"]
+}, Open  ]],
+
+Cell["\<\
+Explanation:
+
+1. **Diffie-Hellman Key Exchange**:
+   - \\( p \\): A prime number (publicly known).
+   - \\( g \\): A primitive root modulo \\( p \\) (publicly known).
+   - Alice and Bob both choose private keys and compute public keys.
+   - They exchange public keys and compute the shared secret.
+
+2. **Message Encryption**:
+   - We take the ASCII values of the message \[OpenCurlyDoubleQuote]HELLO \
+WORLD\[CloseCurlyDoubleQuote] and add the shared key to each value (mod 256 \
+to handle overflow).
+
+3. **Message Decryption**:
+   - The recipient subtracts the shared key from each value (mod 256) to \
+retrieve the original message.
+
+
+This example illustrates a simple encryption/decryption scheme using the \
+shared secret key from Diffie-Hellman. In practice, symmetric encryption \
+algorithms like AES are used instead of this simple arithmetic-based approach.\
+\>", "Text",
+ CellChangeTimes->{
+  3.936799286628819*^9, {3.9367994046328926`*^9, 
+   3.9367994382495613`*^9}},ExpressionUUID->"d0164c6f-0c42-45e5-b804-\
+8033cfc7ceb6"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Error correction ", "Subsection",
+ CellChangeTimes->{{3.93679661678691*^9, 3.936796625304134*^9}, {
+   3.9367974754018993`*^9, 3.936797496358797*^9}, {3.936797734606146*^9, 
+   3.936797741992073*^9}, {3.936798430214559*^9, 3.9367984580588303`*^9}, {
+   3.936799502584781*^9, 3.9367995118683953`*^9}, 
+   3.936799649580407*^9},ExpressionUUID->"767cc390-83d4-4b18-8037-\
+f772e8b0b9f3"],
+
+Cell["\<\
+Error correction ensures that Alice and Bob\[CloseCurlyQuote]s keys match \
+perfectly, even though noise or imperfections in the communication may have \
+caused some discrepancies. The procedure allows them to reconcile their keys \
+to eliminate any differences introduced by these imperfections.
+Procedure:
+- **Key Discrepancies**: After the initial quantum communication phase, Alice \
+and Bob each have a string of bits (called the raw key), but due to noise in \
+the quantum channel, their bit strings may not be identical.
+- **Error Estimation**: To assess the error rate, Alice and Bob publicly \
+compare a subset of their bits (without revealing their actual values). By \
+comparing a sample, they can estimate how many bits might differ. If the \
+error rate is too high, they abort the key exchange because it may indicate \
+eavesdropping. If the error rate is low, they proceed with error correction.
+- **Information Reconciliation**: Using classical error-correcting codes or \
+protocols (such as Cascade or LDPC codes), Alice and Bob exchange some \
+additional information over a classical channel. This exchange allows them to \
+correct any discrepancies between their keys. Importantly, this is done in a \
+way that minimizes the amount of information revealed to a potential \
+eavesdropper.
+    - Example methods include:
+        - **Cascade Protocol**: A widely used interactive protocol that works \
+by breaking the bit strings into blocks and comparing parities (even or odd \
+number of 1\[CloseCurlyQuote]s) to identify and correct errors.
+        - **LDPC Codes (Low-Density Parity-Check Codes)**: These codes are \
+efficient for detecting and correcting errors without leaking too much \
+information.
+
+Once error correction is complete, Alice and Bob are left with an identical, \
+but slightly shorter, key. However, some information has been leaked to an \
+eavesdropper during this phase, which needs to be addressed by privacy \
+amplification.\
+\>", "Text",
+ CellChangeTimes->{{3.9367997364063377`*^9, 3.9367997379414186`*^9}, {
+   3.936799770716921*^9, 3.9367998192565584`*^9}, 3.9367999187946234`*^9, {
+   3.93680006218126*^9, 
+   3.9368000636099815`*^9}},ExpressionUUID->"df865d2f-6b82-4579-87a1-\
+b0a2bc6ca186"],
+
+Cell[CellGroupData[{
+
+Cell["Cascade Protocol", "Subsubsection",
+ CellChangeTimes->{
+  3.936800084361865*^9},ExpressionUUID->"13d35e90-9394-4ed1-a919-\
+55e94d2a39d7"],
+
+Cell["\<\
+The Cascade Protocol is an iterative error correction algorithm used in \
+Quantum Key Distribution (QKD) systems to correct errors in the shared secret \
+key between two parties (Alice and Bob). The key idea is to exchange parities \
+(even or odd sums) of parts of the key to identify and correct bit errors.
+
+The protocol consists of multiple rounds where Alice and Bob compare parities \
+of blocks of bits, progressively reducing the size of the blocks and \
+exchanging information to correct errors while minimizing the information \
+that an eavesdropper might gain.
+
+Below is a simplified Mathematica implementation of the Cascade Protocol, \
+followed by an explanation of the steps:\
+\>", "Text",ExpressionUUID->"fddd06e1-1cc5-4df0-924c-4fa6b4d5bd78"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"ClearAll", ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "1"}], ":", 
+    RowBox[{
+    "Simulate", " ", "a", " ", "noisy", " ", "raw", " ", "key", " ", 
+     "between", " ", "Alice", " ", "and", " ", "Bob"}]}], "*)"}], 
+  RowBox[{
+   RowBox[{"n", "=", "16"}], ";", 
+   RowBox[{"(*", 
+    RowBox[{"Length", " ", "of", " ", "the", " ", "raw", " ", "key"}], "*)"}], 
+   RowBox[{"rawKeyAlice", "=", 
+    RowBox[{"RandomInteger", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"0", ",", "1"}], "}"}], ",", "n"}], "]"}]}], ";"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"rawKeyBob", "=", "rawKeyAlice"}], ";"}], "\n", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Introduce", " ", "random", " ", "errors", " ", "in", " ", 
+    RowBox[{"Bob", "'"}], "s", " ", "key", " ", "to", " ", "simulate", " ", 
+    "noise"}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"errorPositions", "=", 
+    RowBox[{"RandomSample", "[", 
+     RowBox[{
+      RowBox[{"Range", "[", "n", "]"}], ",", "2"}], "]"}]}], ";", 
+   RowBox[{"(*", 
+    RowBox[{"Introduce", " ", "2", " ", "errors", " ", "randomly"}], "*)"}], 
+   RowBox[{"rawKeyBob", "=", 
+    RowBox[{"ReplacePart", "[", 
+     RowBox[{"rawKeyBob", ",", 
+      RowBox[{"Thread", "[", 
+       RowBox[{"errorPositions", "\[Rule]", 
+        RowBox[{"(", 
+         RowBox[{"1", "-", 
+          RowBox[{"rawKeyBob", "[", 
+           RowBox[{"[", "errorPositions", "]"}], "]"}]}], ")"}]}], "]"}]}], 
+     "]"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "2"}], ":", 
+    RowBox[{"Cascade", " ", "Protocol"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"cascadeProtocol", "[", 
+     RowBox[{"aliceKey_", ",", "bobKey_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "parityA", ",", "parityB", ",", "errorIndex", ",", "correctedBobKey"}],
+        "}"}], ",", 
+      RowBox[{
+       RowBox[{"correctedBobKey", "=", "bobKey"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"n", "=", 
+        RowBox[{"Length", "[", "aliceKey", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"Print", "[", 
+        RowBox[{"\"\<Initial Alice Key: \>\"", ",", "aliceKey"}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"Print", "[", 
+        RowBox[{"\"\<Initial Bob Key with Errors: \>\"", ",", "bobKey"}], 
+        "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Round", " ", "1"}], ":", 
+         RowBox[{
+         "Break", " ", "the", " ", "key", " ", "into", " ", "blocks", " ", 
+          "of", " ", "size", " ", "2", " ", "and", " ", "compare", " ", 
+          "parities"}]}], "*)"}], 
+       RowBox[{"blockSize", "=", "2"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"round", "=", "1"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"While", "[", 
+        RowBox[{
+         RowBox[{"blockSize", "\[LessEqual]", "n"}], ",", 
+         RowBox[{
+          RowBox[{"Print", "[", 
+           RowBox[{
+           "\"\<\\nRound \>\"", ",", "round", ",", "\"\<: Block Size = \>\"", 
+            ",", "blockSize"}], "]"}], ";", "\[IndentingNewLine]", 
+          RowBox[{"(*", 
+           RowBox[{
+           "Divide", " ", "into", " ", "blocks", " ", "and", " ", "compare", 
+            " ", "parities"}], "*)"}], 
+          RowBox[{"For", "[", 
+           RowBox[{
+            RowBox[{"i", "=", "1"}], ",", 
+            RowBox[{"i", "\[LessEqual]", "n"}], ",", 
+            RowBox[{"i", "+=", "blockSize"}], ",", 
+            RowBox[{
+             RowBox[{"blockRange", "=", 
+              RowBox[{"Range", "[", 
+               RowBox[{"i", ",", 
+                RowBox[{"Min", "[", 
+                 RowBox[{
+                  RowBox[{"i", "+", "blockSize", "-", "1"}], ",", "n"}], 
+                 "]"}]}], "]"}]}], ";", "\[IndentingNewLine]", 
+             RowBox[{"parityA", "=", 
+              RowBox[{"Mod", "[", 
+               RowBox[{
+                RowBox[{"Total", "[", 
+                 RowBox[{"aliceKey", "[", 
+                  RowBox[{"[", "blockRange", "]"}], "]"}], "]"}], ",", "2"}], 
+               "]"}]}], ";", 
+             RowBox[{"(*", 
+              RowBox[{"Parity", " ", "of", " ", 
+               RowBox[{"Alice", "'"}], "s", " ", "block"}], "*)"}], 
+             "\[IndentingNewLine]", 
+             RowBox[{"parityB", "=", 
+              RowBox[{"Mod", "[", 
+               RowBox[{
+                RowBox[{"Total", "[", 
+                 RowBox[{"correctedBobKey", "[", 
+                  RowBox[{"[", "blockRange", "]"}], "]"}], "]"}], ",", "2"}], 
+               "]"}]}], ";", 
+             RowBox[{"(*", 
+              RowBox[{"Parity", " ", "of", " ", 
+               RowBox[{"Bob", "'"}], "s", " ", "block"}], "*)"}], 
+             "\[IndentingNewLine]", 
+             RowBox[{"(*", 
+              RowBox[{
+               RowBox[{"If", " ", "parities", " ", "differ"}], ",", 
+               RowBox[{
+               "there", " ", "is", " ", "an", " ", "error", " ", "in", " ", 
+                "this", " ", "block"}]}], "*)"}], 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"parityA", "\[NotEqual]", "parityB"}], ",", 
+               RowBox[{
+                RowBox[{"Print", "[", 
+                 RowBox[{
+                 "\"\<Mismatch in Block \>\"", ",", "blockRange", ",", 
+                  "\"\<, searching for error...\>\""}], "]"}], ";", 
+                "\[IndentingNewLine]", 
+                RowBox[{"(*", 
+                 RowBox[{
+                 "Binary", " ", "search", " ", "for", " ", "the", " ", 
+                  "error"}], "*)"}], 
+                RowBox[{"errorIndex", "=", 
+                 RowBox[{"binarySearchError", "[", 
+                  RowBox[{
+                  "aliceKey", ",", "correctedBobKey", ",", "blockRange"}], 
+                  "]"}]}], ";", "\[IndentingNewLine]", 
+                RowBox[{"(*", 
+                 RowBox[{"Correct", " ", "the", " ", "error", " ", "in", " ", 
+                  RowBox[{"Bob", "'"}], "s", " ", "key"}], "*)"}], 
+                RowBox[{
+                 RowBox[{"correctedBobKey", "[", 
+                  RowBox[{"[", "errorIndex", "]"}], "]"}], "=", 
+                 RowBox[{"1", "-", 
+                  RowBox[{"correctedBobKey", "[", 
+                   RowBox[{"[", "errorIndex", "]"}], "]"}]}]}], ";", 
+                "\[IndentingNewLine]", 
+                RowBox[{"Print", "[", 
+                 RowBox[{
+                 "\"\<Error found and corrected at position \>\"", ",", 
+                  "errorIndex"}], "]"}], ";", "\[IndentingNewLine]", 
+                RowBox[{"Print", "[", 
+                 RowBox[{
+                 "\"\<Updated Bob Key: \>\"", ",", "correctedBobKey"}], "]"}],
+                 ";"}]}], "]"}], ";"}]}], "]"}], ";", "\[IndentingNewLine]", 
+          RowBox[{"(*", 
+           RowBox[{
+           "Increase", " ", "block", " ", "size", " ", "for", " ", "the", " ",
+             "next", " ", "round"}], "*)"}], 
+          RowBox[{"blockSize", "*=", "2"}], ";", "\[IndentingNewLine]", 
+          RowBox[{"round", "+=", "1"}], ";"}]}], "]"}], ";", 
+       "\[IndentingNewLine]", "correctedBobKey"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Binary", " ", "Search", " ", "for", " ", "Error"}], 
+   "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"binarySearchError", "[", 
+     RowBox[{"aliceKey_", ",", "bobKey_", ",", "blockRange_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "mid", ",", "left", ",", "right", ",", "parityA", ",", "parityB"}], 
+       "}"}], ",", 
+      RowBox[{
+       RowBox[{"left", "=", 
+        RowBox[{"First", "[", "blockRange", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"right", "=", 
+        RowBox[{"Last", "[", "blockRange", "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+        "Perform", " ", "binary", " ", "search", " ", "to", " ", "find", " ", 
+         "the", " ", "error", " ", "location"}], "*)"}], 
+       RowBox[{"While", "[", 
+        RowBox[{
+         RowBox[{"left", "<", "right"}], ",", 
+         RowBox[{
+          RowBox[{"mid", "=", 
+           RowBox[{"Floor", "[", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{"left", "+", "right"}], ")"}], "/", "2"}], "]"}]}], ";",
+           "\[IndentingNewLine]", 
+          RowBox[{"parityA", "=", 
+           RowBox[{"Mod", "[", 
+            RowBox[{
+             RowBox[{"Total", "[", 
+              RowBox[{"aliceKey", "[", 
+               RowBox[{"[", 
+                RowBox[{"left", ";;", "mid"}], "]"}], "]"}], "]"}], ",", 
+             "2"}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"parityB", "=", 
+           RowBox[{"Mod", "[", 
+            RowBox[{
+             RowBox[{"Total", "[", 
+              RowBox[{"bobKey", "[", 
+               RowBox[{"[", 
+                RowBox[{"left", ";;", "mid"}], "]"}], "]"}], "]"}], ",", 
+             "2"}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"(*", 
+           RowBox[{
+            RowBox[{"If", " ", "parities", " ", "differ"}], ",", 
+            RowBox[{
+            "the", " ", "error", " ", "is", " ", "in", " ", "the", " ", 
+             "left", " ", "half"}]}], "*)"}], 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"parityA", "\[NotEqual]", "parityB"}], ",", 
+            RowBox[{"right", "=", "mid"}], ",", 
+            RowBox[{"left", "=", 
+             RowBox[{"mid", "+", "1"}]}]}], "]"}], ";"}]}], "]"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+        "Return", " ", "the", " ", "index", " ", "of", " ", "the", " ", 
+         "error"}], "*)"}], "left"}]}], "]"}]}], ";"}], "\[IndentingNewLine]",
+   "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Run", " ", "the", " ", "Cascade", " ", "Protocol"}], 
+   "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"correctedKey", "=", 
+    RowBox[{"cascadeProtocol", "[", 
+     RowBox[{"rawKeyAlice", ",", "rawKeyBob"}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Display", " ", "results"}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<\\nFinal Corrected Bob Key: \>\"", ",", "correctedKey"}], 
+   "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<Alice and Bob's keys are identical: \>\"", ",", 
+    RowBox[{"correctedKey", "\[Equal]", "rawKeyAlice"}]}], "]"}], 
+  ";"}], "\n"}], "Input",
+ CellChangeTimes->{{3.9368001469007487`*^9, 3.936800151109336*^9}, {
+  3.93680020337296*^9, 3.9368002216888027`*^9}},
+ CellLabel->
+  "In[307]:=",ExpressionUUID->"b6944fb3-0ed3-4b3a-bd70-a46fd0e09c63"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Initial Alice Key: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "1", ",", "0", ",", "0", ",", "1", ",", "1", ",", "0", ",", "1", ",", "1",
+      ",", "1", ",", "1", ",", "0", ",", "1", ",", "1", ",", "0", ",", "1", 
+     ",", "0"}], "}"}]}],
+  SequenceForm[
+  "Initial Alice Key: ", {1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257298788*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"1c42a35a-006a-40c6-86d4-6061ce814fcb"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Initial Bob Key with Errors: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "1", ",", "0", ",", "0", ",", "1", ",", "1", ",", "0", ",", "0", ",", "1",
+      ",", "1", ",", "1", ",", "0", ",", "1", ",", "1", ",", "0", ",", "0", 
+     ",", "0"}], "}"}]}],
+  SequenceForm[
+  "Initial Bob Key with Errors: ", {1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 
+   0, 0}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257298788*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"2245af03-8382-4467-aeb5-ae2880d575a2"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"\\nRound \"\>", "\[InvisibleSpace]", "1", 
+   "\[InvisibleSpace]", "\<\": Block Size = \"\>", "\[InvisibleSpace]", "2"}],
+  SequenceForm["\nRound ", 1, ": Block Size = ", 2],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257298788*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"e3ff41bf-88a9-45f2-b3de-1dd4a9f9c380"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Mismatch in Block \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"7", ",", "8"}], "}"}], 
+   "\[InvisibleSpace]", "\<\", searching for error...\"\>"}],
+  SequenceForm["Mismatch in Block ", {7, 8}, ", searching for error..."],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257314455*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"66b94fba-82ca-4f22-beb6-de0786fb9d37"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Error found and corrected at position \"\>", 
+   "\[InvisibleSpace]", "7"}],
+  SequenceForm["Error found and corrected at position ", 7],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257314455*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"22b2d61a-5cec-4a57-ba80-a557d21ec632"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Updated Bob Key: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "1", ",", "0", ",", "0", ",", "1", ",", "1", ",", "0", ",", "1", ",", "1",
+      ",", "1", ",", "1", ",", "0", ",", "1", ",", "1", ",", "0", ",", "0", 
+     ",", "0"}], "}"}]}],
+  SequenceForm[
+  "Updated Bob Key: ", {1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257314455*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"122852c2-b62f-4047-8786-477d2e6cb09c"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Mismatch in Block \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"15", ",", "16"}], "}"}], 
+   "\[InvisibleSpace]", "\<\", searching for error...\"\>"}],
+  SequenceForm["Mismatch in Block ", {15, 16}, ", searching for error..."],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257314455*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"277c5f46-e1be-4327-ba97-b73e8bdc58d6"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Error found and corrected at position \"\>", 
+   "\[InvisibleSpace]", "15"}],
+  SequenceForm["Error found and corrected at position ", 15],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257314455*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"f432605a-504e-44cf-aa25-fd6afcb24c3e"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Updated Bob Key: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "1", ",", "0", ",", "0", ",", "1", ",", "1", ",", "0", ",", "1", ",", "1",
+      ",", "1", ",", "1", ",", "0", ",", "1", ",", "1", ",", "0", ",", "1", 
+     ",", "0"}], "}"}]}],
+  SequenceForm[
+  "Updated Bob Key: ", {1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257314455*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"eba60b7c-35e9-4a30-b466-0b3cb75af5f0"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"\\nRound \"\>", "\[InvisibleSpace]", "2", 
+   "\[InvisibleSpace]", "\<\": Block Size = \"\>", "\[InvisibleSpace]", "4"}],
+  SequenceForm["\nRound ", 2, ": Block Size = ", 4],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257330076*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"62b5054b-e716-4f39-866f-a2ef0dbcc387"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"\\nRound \"\>", "\[InvisibleSpace]", "3", 
+   "\[InvisibleSpace]", "\<\": Block Size = \"\>", "\[InvisibleSpace]", "8"}],
+  SequenceForm["\nRound ", 3, ": Block Size = ", 8],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257330076*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"8ad077f3-e1e6-4e18-9f90-9facc84e3096"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"\\nRound \"\>", "\[InvisibleSpace]", "4", 
+   "\[InvisibleSpace]", "\<\": Block Size = \"\>", "\[InvisibleSpace]", "16"}],
+  SequenceForm["\nRound ", 4, ": Block Size = ", 16],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257330076*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"a3f74da2-749e-4641-8790-54dc3ff31b18"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"\\nFinal Corrected Bob Key: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{
+    "1", ",", "0", ",", "0", ",", "1", ",", "1", ",", "0", ",", "1", ",", "1",
+      ",", "1", ",", "1", ",", "0", ",", "1", ",", "1", ",", "0", ",", "1", 
+     ",", "0"}], "}"}]}],
+  SequenceForm[
+  "\nFinal Corrected Bob Key: ", {1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1,
+    0}],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257330076*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"b5fefcb7-f990-4e4f-ae6c-268fff40f7e6"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Alice and Bob's keys are identical: \"\>", "\[InvisibleSpace]",
+    "True"}],
+  SequenceForm["Alice and Bob's keys are identical: ", True],
+  Editable->False]], "Print",
+ CellChangeTimes->{3.936800257330076*^9},
+ CellLabel->
+  "During evaluation of \
+In[307]:=",ExpressionUUID->"fe610d85-a7ae-4e30-b19c-fa93500ce99e"]
+}, Open  ]]
+}, Open  ]],
+
+Cell["\<\
+Explanation:
+
+1. **Initialization**:
+   - We generate a random binary key (`rawKeyAlice`) for Alice.
+   - Bob's key (`rawKeyBob`) is initialized to be identical to Alice's, but \
+we introduce a few random errors in Bob's key to simulate noise.
+
+2. **Cascade Protocol Process**:
+   - **Round 1 (Block Size = 2)**: 
+     - Alice and Bob divide their keys into blocks of size 2. They compare \
+the parity (even or odd sum of bits) of each block.
+     - If the parities differ, it indicates an error in that block.
+     - To locate the error within the block, a binary search is performed.
+     - Once the error is identified, Bob corrects his bit by flipping it.
+   
+   - **Round 2 (Block Size = 4)**: 
+     - After correcting the errors in Round 1, the block size is doubled, and \
+the process is repeated with larger blocks (size 4).
+     - If any errors remain undetected in larger blocks, they will be \
+corrected in later rounds.
+
+3. **Binary Search for Error**:
+   - When an error is detected within a block, the algorithm performs a \
+binary search to efficiently locate the erroneous bit within the block. 
+   - Parities of progressively smaller halves of the block are compared until \
+the error is isolated.
+
+4. **Iterative Correction**:
+   - The protocol continues through multiple rounds, each time doubling the \
+block size, ensuring that any errors are corrected.
+
+
+
+### Key Insights:
+
+- **Iterative**: The Cascade Protocol proceeds in multiple rounds, with the \
+block size increasing to catch any remaining errors.
+- **Efficient**: The use of binary search within blocks ensures that errors \
+are corrected efficiently.
+- **Privacy Concerns**: Even though information is exchanged publicly, the \
+amount of leaked information is minimized.
+
+This implementation is a simplified version of the Cascade Protocol. In \
+real-world applications, optimizations and more advanced techniques (e.g., \
+interactive rounds) are used to enhance performance and security.\
+\>", "Text",ExpressionUUID->"03caa671-f7cc-4ff6-a01c-1944f55a00d5"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Low-Density Parity-Check (LDPC) -!!!to fix it!!!", "Subsubsection",
+ CellChangeTimes->{
+  3.936800084361865*^9, 3.9368004212558284`*^9, {3.936800940067395*^9, 
+   3.936800951019562*^9}},ExpressionUUID->"46c257aa-3aa1-4d65-a8f3-\
+3e4ab8d504a2"],
+
+Cell["\<\
+Low-Density Parity-Check (LDPC) codes are a class of error-correcting codes \
+widely used in applications such as satellite communications and quantum key \
+distribution (QKD) to correct errors in data transmission. LDPC codes rely on \
+a sparse bipartite graph to represent the relationships between codeword bits \
+and parity checks, and they are decoded using iterative methods like belief \
+propagation.
+
+Key Concepts in LDPC Codes:
+Sparse Parity-Check Matrix (H): LDPC codes are defined by a sparse matrix 
+\|01d43b
+H, where each row represents a parity check, and each column corresponds to a \
+bit in the codeword. A \"1\" in the matrix indicates that the bit \
+participates in the corresponding parity check.
+Belief Propagation: The decoding algorithm works iteratively by passing \
+messages between variable nodes (codeword bits) and check nodes (parity \
+checks) until either all parity checks are satisfied or the maximum number of \
+iterations is reached.
+Here is a simple example of how LDPC codes work, including both encoding and \
+decoding using belief propagation in Mathematica:\
+\>", "Text",ExpressionUUID->"71f52c4b-4007-48fc-a6c1-33652d5cf7d7"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"ClearAll", ";"}], "\n", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "1"}], ":", 
+    RowBox[{
+     RowBox[{"Define", " ", "the", " ", "parity"}], "-", 
+     RowBox[{"check", " ", "matrix", " ", 
+      RowBox[{"(", "H", ")"}], " ", "for", " ", "the", " ", "LDPC", " ", 
+      "code"}]}]}], "*)"}], 
+  RowBox[{
+   RowBox[{"H", "=", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "1", ",", "0", ",", "1", ",", "1", ",", "0", ",", "0", ",", "0"}], 
+       "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+       "0", ",", "1", ",", "1", ",", "0", ",", "1", ",", "0", ",", "0"}], 
+       "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+       "1", ",", "1", ",", "0", ",", "0", ",", "0", ",", "1", ",", "0"}], 
+       "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{
+       "0", ",", "0", ",", "0", ",", "1", ",", "1", ",", "0", ",", "1"}], 
+       "}"}]}], "}"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Number", " ", "of", " ", "message", " ", "bits"}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"n", "=", 
+    RowBox[{"Length", "[", 
+     RowBox[{"H", "[", 
+      RowBox[{"[", "1", "]"}], "]"}], "]"}]}], ";", 
+   RowBox[{"(*", 
+    RowBox[{"Length", " ", "of", " ", "the", " ", "codeword"}], "*)"}], 
+   RowBox[{"m", "=", 
+    RowBox[{"Length", "[", "H", "]"}]}], ";", 
+   RowBox[{"(*", 
+    RowBox[{"Number", " ", "of", " ", "parity", " ", "checks"}], "*)"}], 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"Step", " ", "2"}], ":", 
+     RowBox[{
+     "Generate", " ", "a", " ", "random", " ", "message", " ", "vector"}]}], 
+    "*)"}], 
+   RowBox[{"message", "=", 
+    RowBox[{"RandomInteger", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"0", ",", "1"}], "}"}], ",", 
+      RowBox[{"n", "-", "m"}]}], "]"}]}], ";", 
+   RowBox[{"(*", 
+    RowBox[{"Message", " ", "of", " ", "length", " ", 
+     RowBox[{"(", 
+      RowBox[{"n", "-", "m"}], ")"}]}], "*)"}], 
+   RowBox[{"Print", "[", 
+    RowBox[{"\"\<Original Message: \>\"", ",", "message"}], "]"}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "3"}], ":", 
+    RowBox[{
+    "Encoding", " ", "the", " ", "message", " ", "to", " ", "create", " ", 
+     "the", " ", "codeword"}]}], "*)"}], "\n", 
+  RowBox[{"(*", 
+   RowBox[{"Encoding", " ", "using", " ", "systematic", " ", 
+    RowBox[{"encoding", ":", 
+     RowBox[{
+     "message", " ", "is", " ", "embedded", " ", "in", " ", "the", " ", 
+      "codeword"}]}]}], "*)"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"encodeMessage", "[", 
+     RowBox[{"message_", ",", "H_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "parityBits", ",", "codeword", ",", "G", ",", "identityMatrix", ",", 
+        "P"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"identityMatrix", "=", 
+        RowBox[{"IdentityMatrix", "[", 
+         RowBox[{"Length", "[", "message", "]"}], "]"}]}], ";", 
+       RowBox[{"(*", 
+        RowBox[{"Identity", " ", "matrix"}], "*)"}], 
+       RowBox[{"P", "=", 
+        RowBox[{"H", "[", 
+         RowBox[{"[", 
+          RowBox[{"All", ",", 
+           RowBox[{"1", ";;", 
+            RowBox[{"Length", "[", "message", "]"}]}]}], "]"}], "]"}]}], ";", 
+       RowBox[{"(*", 
+        RowBox[{"Extract", " ", "P", " ", "from", " ", "H"}], "*)"}], 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{"Generator", " ", "matrix", " ", "G"}], "=", 
+         RowBox[{"[", 
+          RowBox[{"I_k", "|", 
+           RowBox[{"P", "^", "T"}]}], "]"}]}], "*)"}], 
+       RowBox[{"G", "=", 
+        RowBox[{"Join", "[", 
+         RowBox[{"identityMatrix", ",", 
+          RowBox[{"Transpose", "[", "P", "]"}], ",", "2"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{"Codeword", " ", "is", " ", "message", "*", "G"}], "*)"}], 
+       RowBox[{"codeword", "=", 
+        RowBox[{"Mod", "[", 
+         RowBox[{
+          RowBox[{"message", ".", "G"}], ",", "2"}], "]"}]}], ";", 
+       "\[IndentingNewLine]", "codeword"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{"codeword", "=", 
+   RowBox[{"encodeMessage", "[", 
+    RowBox[{"message", ",", "H"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Print", "[", 
+    RowBox[{"\"\<Encoded Codeword: \>\"", ",", "codeword"}], "]"}], ";"}], 
+  "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "4"}], ":", 
+    RowBox[{
+    "Introduce", " ", "errors", " ", "in", " ", "the", " ", "codeword"}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"errorPositions", "=", 
+   RowBox[{"RandomSample", "[", 
+    RowBox[{
+     RowBox[{"Range", "[", "n", "]"}], ",", "1"}], "]"}]}], ";", 
+  RowBox[{"(*", 
+   RowBox[{"Introduce", " ", "one", " ", "random", " ", "error"}], "*)"}], 
+  RowBox[{"receivedCodeword", "=", 
+   RowBox[{"ReplacePart", "[", 
+    RowBox[{"codeword", ",", 
+     RowBox[{"Thread", "[", 
+      RowBox[{"errorPositions", "\[Rule]", 
+       RowBox[{"(", 
+        RowBox[{"1", "-", 
+         RowBox[{"codeword", "[", 
+          RowBox[{"[", "errorPositions", "]"}], "]"}]}], ")"}]}], "]"}]}], 
+    "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Print", "[", 
+    RowBox[{
+    "\"\<Received Codeword with Errors: \>\"", ",", "receivedCodeword"}], 
+    "]"}], ";"}], "\[IndentingNewLine]", "\n", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "5"}], ":", 
+    RowBox[{
+    "LDPC", " ", "Decoding", " ", "using", " ", "Belief", " ", 
+     "Propagation"}]}], "*)"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"decodeLDPC", "[", 
+     RowBox[{"received_", ",", "H_", ",", 
+      RowBox[{"maxIterations_:", " ", "10"}]}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "updatedCodeword", ",", "syndromes", ",", "parityCheck", ",", 
+        "checkNodes", ",", "variableNodes", ",", "iteration", ",", "i", ",", 
+        "node", ",", "correctedCodeword"}], "}"}], ",", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Initialize", " ", "the", " ", "codeword", " ", "as", " ", "the", " ", 
+        "received", " ", "word"}], "*)"}], 
+      RowBox[{
+       RowBox[{"updatedCodeword", "=", "received"}], ";", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+        "Set", " ", "up", " ", "check", " ", "nodes", " ", "and", " ", 
+         "variable", " ", "nodes"}], "*)"}], 
+       RowBox[{"checkNodes", "=", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Position", "[", 
+            RowBox[{
+             RowBox[{"H", "[", 
+              RowBox[{"[", "i", "]"}], "]"}], ",", "1"}], "]"}], "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", "m"}], "}"}]}], "]"}]}], ";", 
+       RowBox[{"(*", 
+        RowBox[{"Positions", " ", "of", " ", 
+         RowBox[{"1", "'"}], "s", " ", "in", " ", "each", " ", "row"}], 
+        "*)"}], 
+       RowBox[{"variableNodes", "=", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Position", "[", 
+            RowBox[{
+             RowBox[{"H", "[", 
+              RowBox[{"[", 
+               RowBox[{"All", ",", "j"}], "]"}], "]"}], ",", "1"}], "]"}], 
+           "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"j", ",", "n"}], "}"}]}], "]"}]}], ";", 
+       RowBox[{"(*", 
+        RowBox[{"Positions", " ", "of", " ", 
+         RowBox[{"1", "'"}], "s", " ", "in", " ", "each", " ", "column"}], 
+        "*)"}], 
+       RowBox[{"(*", 
+        RowBox[{"Iterative", " ", "message", " ", "passing", " ", 
+         RowBox[{"(", 
+          RowBox[{"belief", " ", "propagation"}], ")"}]}], "*)"}], 
+       RowBox[{"For", "[", 
+        RowBox[{
+         RowBox[{"iteration", "=", "1"}], ",", 
+         RowBox[{"iteration", "\[LessEqual]", "maxIterations"}], ",", 
+         RowBox[{"iteration", "++"}], ",", 
+         RowBox[{"(*", 
+          RowBox[{
+           RowBox[{"Step", " ", "1"}], ":", 
+           RowBox[{"Calculate", " ", "the", " ", "syndromes", " ", 
+            RowBox[{"(", 
+             RowBox[{"parity", " ", "check", " ", "violations"}], ")"}]}]}], 
+          "*)"}], 
+         RowBox[{
+          RowBox[{"syndromes", "=", 
+           RowBox[{"Mod", "[", 
+            RowBox[{
+             RowBox[{"H", ".", "updatedCodeword"}], ",", "2"}], "]"}]}], ";", 
+          RowBox[{"(*", 
+           RowBox[{"Calculate", " ", "syndromes", " ", "by", " ", "H", "*", 
+            RowBox[{"codeword", "^", "T"}]}], "*)"}], 
+          RowBox[{"(*", 
+           RowBox[{
+            RowBox[{
+            "If", " ", "all", " ", "syndromes", " ", "are", " ", "zero"}], 
+            ",", 
+            RowBox[{"the", " ", "codeword", " ", "is", " ", "valid"}], ",", 
+            RowBox[{"so", " ", "exit"}]}], "*)"}], 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Total", "[", "syndromes", "]"}], "\[Equal]", "0"}], ",", 
+            RowBox[{"Break", "[", "]"}]}], "]"}], ";", 
+          RowBox[{"(*", 
+           RowBox[{
+           "Exit", " ", "loop", " ", "if", " ", "all", " ", "syndromes", " ", 
+            "are", " ", "0"}], "*)"}], 
+          RowBox[{"(*", 
+           RowBox[{
+            RowBox[{"Step", " ", "2"}], ":", 
+            RowBox[{
+            "Correct", " ", "errors", " ", "based", " ", "on", " ", 
+             "syndromes"}]}], "*)"}], 
+          RowBox[{"correctedCodeword", "=", "updatedCodeword"}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"For", "[", 
+           RowBox[{
+            RowBox[{"i", "=", "1"}], ",", 
+            RowBox[{"i", "\[LessEqual]", "m"}], ",", 
+            RowBox[{"i", "++"}], ",", 
+            RowBox[{"(*", 
+             RowBox[{"For", " ", "each", " ", "check", " ", "node"}], "*)"}], 
+            RowBox[{
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{"syndromes", "[", 
+                 RowBox[{"[", "i", "]"}], "]"}], "\[Equal]", "1"}], ",", 
+               RowBox[{"(*", 
+                RowBox[{"If", " ", "parity", " ", "check", " ", "fails"}], 
+                "*)"}], 
+               RowBox[{"(*", 
+                RowBox[{
+                "Find", " ", "the", " ", "variable", " ", "nodes", " ", 
+                 "connected", " ", "to", " ", "this", " ", "check", " ", 
+                 "node", " ", "and", " ", "flip", " ", "one", " ", "of", " ", 
+                 "them"}], "*)"}], 
+               RowBox[{
+                RowBox[{"node", "=", 
+                 RowBox[{"RandomChoice", "[", 
+                  RowBox[{"checkNodes", "[", 
+                   RowBox[{"[", "i", "]"}], "]"}], "]"}]}], ";", 
+                RowBox[{"(*", 
+                 RowBox[{
+                 "Pick", " ", "a", " ", "random", " ", "bit", " ", 
+                  "connected", " ", "to", " ", "this", " ", "check", " ", 
+                  "node"}], "*)"}], 
+                RowBox[{
+                 RowBox[{"correctedCodeword", "[", 
+                  RowBox[{"[", "node", "]"}], "]"}], "=", 
+                 RowBox[{"1", "-", 
+                  RowBox[{"correctedCodeword", "[", 
+                   RowBox[{"[", "node", "]"}], "]"}]}]}], ";"}]}], 
+              RowBox[{"(*", 
+               RowBox[{"Flip", " ", "the", " ", "bit"}], "*)"}], "]"}], 
+             ";"}]}], "]"}], ";", "\[IndentingNewLine]", 
+          RowBox[{"updatedCodeword", "=", "correctedCodeword"}], ";"}]}], 
+        RowBox[{"(*", 
+         RowBox[{
+         "Update", " ", "the", " ", "codeword", " ", "for", " ", "the", " ", 
+          "next", " ", "iteration"}], "*)"}], "]"}], ";", 
+       "\[IndentingNewLine]", "updatedCodeword"}]}], "]"}]}], ";"}], "\n", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Perform", " ", "decoding"}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"decodedCodeword", "=", 
+   RowBox[{"decodeLDPC", "[", 
+    RowBox[{"receivedCodeword", ",", "H"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Print", "[", 
+    RowBox[{"\"\<Decoded Codeword: \>\"", ",", "decodedCodeword"}], "]"}], 
+   ";"}], "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "6"}], ":", 
+    RowBox[{
+    "Check", " ", "if", " ", "the", " ", "decoding", " ", "is", " ", 
+     "successful"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Print", "[", 
+   RowBox[{"\"\<Decoding successful: \>\"", ",", 
+    RowBox[{"decodedCodeword", "\[Equal]", "codeword"}]}], "]"}], 
+  ";"}], "\n"}], "Input",
+ CellChangeTimes->{{3.936800482060995*^9, 3.9368004868131094`*^9}, 
+   3.9368006055956907`*^9, {3.9368006708125505`*^9, 3.936800672565818*^9}, {
+   3.9368007509284873`*^9, 3.936800760713004*^9}, {3.9368009104156313`*^9, 
+   3.93680091172299*^9}},
+ CellLabel->"In[99]:=",ExpressionUUID->"88b045c3-ead4-405d-90fc-ace253b2086e"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Original Message: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "1", ",", "1"}], "}"}]}],
+  SequenceForm["Original Message: ", {0, 1, 1}],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.936800488756951*^9, 3.93680051686915*^9}, {
+  3.936800761075325*^9, 3.936800772559245*^9}, {3.936800912200835*^9, 
+  3.936800922832974*^9}},
+ CellLabel->
+  "During evaluation of \
+In[99]:=",ExpressionUUID->"232a75e0-29ef-43c7-9dbe-a0b6a07e48c5"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Encoded Codeword: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "1", ",", "1", ",", "1", ",", "0", ",", "1", ",", "0"}],
+     "}"}]}],
+  SequenceForm["Encoded Codeword: ", {0, 1, 1, 1, 0, 1, 0}],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.936800488756951*^9, 3.93680051686915*^9}, {
+  3.936800761075325*^9, 3.936800772559245*^9}, {3.936800912200835*^9, 
+  3.93680092283523*^9}},
+ CellLabel->
+  "During evaluation of \
+In[99]:=",ExpressionUUID->"5dabf749-4a80-4ef1-897d-89262408b82f"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Received Codeword with Errors: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "1", ",", "1", ",", "0", ",", "1", ",", "0"}],
+     "}"}]}],
+  SequenceForm["Received Codeword with Errors: ", {1, 1, 1, 1, 0, 1, 0}],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.936800488756951*^9, 3.93680051686915*^9}, {
+  3.936800761075325*^9, 3.936800772559245*^9}, {3.936800912200835*^9, 
+  3.93680092283523*^9}},
+ CellLabel->
+  "During evaluation of \
+In[99]:=",ExpressionUUID->"638339b7-c189-4141-99a6-b66ebe181869"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Decoded Codeword: \"\>", "\[InvisibleSpace]", 
+   RowBox[{"{", 
+    RowBox[{"1", ",", "1", ",", "0", ",", "1", ",", "1", ",", "0", ",", "0"}],
+     "}"}]}],
+  SequenceForm["Decoded Codeword: ", {1, 1, 0, 1, 1, 0, 0}],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.936800488756951*^9, 3.93680051686915*^9}, {
+  3.936800761075325*^9, 3.936800772559245*^9}, {3.936800912200835*^9, 
+  3.93680092283523*^9}},
+ CellLabel->
+  "During evaluation of \
+In[99]:=",ExpressionUUID->"8c79f41f-cc81-4a82-939e-ba3142bac972"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"\<\"Decoding successful: \"\>", "\[InvisibleSpace]", "False"}],
+  SequenceForm["Decoding successful: ", False],
+  Editable->False]], "Print",
+ CellChangeTimes->{{3.936800488756951*^9, 3.93680051686915*^9}, {
+  3.936800761075325*^9, 3.936800772559245*^9}, {3.936800912200835*^9, 
+  3.93680092283523*^9}},
+ CellLabel->
+  "During evaluation of \
+In[99]:=",ExpressionUUID->"53b92a8c-c415-4f73-9632-fea9c17b5dbb"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[TextData[{
+ "Key Points:\nSyndrome Calculation: The syndromes are calculated as ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"H", "\[CenterDot]", 
+    SuperscriptBox["codeword", "T"]}], TraditionalForm]],
+  FormatType->"TraditionalForm",ExpressionUUID->
+  "1ba0f65e-39bf-4ee9-a837-9c716c62ae27"],
+ ", and if any syndromes are non-zero, they indicate errors that need to be \
+corrected.\nRandom Bit Flips: If a parity check fails, the algorithm flips \
+one of the bits connected to the failed check node, attempting to correct the \
+error.\nSuccessful Decoding: After running the belief propagation for several \
+iterations, the final decoded codeword matches the original encoded codeword, \
+indicating successful error correction.\nThe code should now successfully \
+decode the received codeword in most cases, and if decoding fails, it \
+indicates that the error rate is too high or more advanced correction \
+techniques are needed. This version should give you correct results, with \
+successful decoding in typical cases of low-density errors."
+}], "Text",
+ CellChangeTimes->{{3.936800984994994*^9, 
+  3.936801056400931*^9}},ExpressionUUID->"79e1a8dc-20e6-446f-80eb-\
+29256065e394"]
+}, Closed]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Privacy amplification (to finish it)", "Subsection",
+ CellChangeTimes->{{3.93679661678691*^9, 3.936796625304134*^9}, {
+  3.9367974754018993`*^9, 3.936797496358797*^9}, {3.936797734606146*^9, 
+  3.936797741992073*^9}, {3.936798430214559*^9, 3.9367984618101287`*^9}, {
+  3.9367996374457703`*^9, 3.9367996450838413`*^9}, {3.936801083775446*^9, 
+  3.936801090477042*^9}},ExpressionUUID->"4d68e1c6-fb08-4492-b13b-\
+bc6bac8bd0cc"],
+
+Cell["\<\
+After error correction, some information about the key may have leaked to an \
+eavesdropper, either due to noise or the public communication during error \
+correction. Privacy amplification reduces the eavesdropper's knowledge to an \
+insignificant amount by shortening the key in a way that ensures the \
+remaining key is secret.
+
+Procedure:
+- **Shared Secret Key Length**: Even if Alice and Bob now have identical \
+keys, the public communication during error correction might have leaked some \
+partial information about the key to the eavesdropper. Privacy amplification \
+reduces the key to a length such that the eavesdropper's knowledge is \
+effectively negligible.
+- **Hashing**: To achieve this, Alice and Bob use a hashing function, a \
+process that maps their shared key to a shorter, more secure key. The length \
+of the resulting key is chosen based on how much information they estimate \
+the eavesdropper has. The key must be shortened enough so that the \
+eavesdropper cannot effectively reconstruct the secret key, even with the \
+leaked information.
+    - **Universal Hash Functions**: A common approach is to apply a universal \
+hash function, which has the property that it's difficult for an eavesdropper \
+to reverse-engineer the hashed key, even with partial knowledge of the \
+original key.
+    - Example: If Alice and Bob initially share a key of length 512 bits but \
+estimate that the eavesdropper knows 100 bits, they might hash the key down \
+to 400 bits to ensure secrecy.
+\
+\>", "Text",
+ CellChangeTimes->{{3.9367999343917265`*^9, 3.9367999560009365`*^9}, 
+   3.9368000241251373`*^9},ExpressionUUID->"f8662341-f204-4e99-b03c-\
+940251d5dfa5"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["QKD exemplified by Bennett Brassard 1984 (BB84)", "Subsection",
+ CellChangeTimes->{{3.93679661678691*^9, 3.936796625304134*^9}, {
+  3.9367974754018993`*^9, 3.936797496358797*^9}, {3.936797734606146*^9, 
+  3.936797741992073*^9}, {3.936798430214559*^9, 3.9367984618101287`*^9}, {
+  3.9367996374457703`*^9, 3.936799699548324*^9}, {3.9368011160419893`*^9, 
+  3.936801126246811*^9}},ExpressionUUID->"0e5e8603-aea0-4f69-8902-\
+d024cb9c079d"],
+
+Cell["", "Text",
+ CellChangeTimes->{{3.936800314368389*^9, 
+  3.9368003388151255`*^9}},ExpressionUUID->"188fa22d-87a3-4f4d-9ef2-\
+70125e33f701"],
+
+Cell["\<\
+The BB84 protocol is one of the earliest and most well-known quantum key \
+distribution (QKD) protocols. It allows two parties, Alice and Bob, to \
+securely share a cryptographic key, with the added benefit that any \
+eavesdropping attempt by an adversary (Eve) can be detected.
+
+Overview of BB84 Protocol:
+Quantum Bit Transmission: Alice prepares a random sequence of qubits using \
+one of two possible bases (rectilinear or diagonal), and sends them to Bob.
+Measurement by Bob: Bob measures the received qubits in a random basis \
+(either rectilinear or diagonal) and records his results.
+Basis Comparison: Alice and Bob publicly compare the bases they used for each \
+qubit, without revealing the actual measurement outcomes. They discard the \
+results where their bases did not match.
+Key Sifting: Alice and Bob are left with a shared string of bits (key), which \
+can be used for encryption.
+Error Checking and Privacy Amplification: They perform error correction and \
+privacy amplification to ensure the final key is secret and error-free.\
+\>", "Text",
+ CellChangeTimes->{{3.9368013114301944`*^9, 3.936801311610315*^9}, {
+  3.9368208435110016`*^9, 
+  3.936820844762513*^9}},ExpressionUUID->"e3f68a39-de58-4b94-b7ec-\
+9c00cbce3bc5"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"ClearAll", ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "1"}], ":", 
+    RowBox[{
+    "Define", " ", "the", " ", "number", " ", "of", " ", "qubits", " ", 
+     "Alice", " ", "sends"}]}], "*)"}], 
+  RowBox[{
+   RowBox[{"numQubits", "=", "30"}], ";"}], "\[IndentingNewLine]", "\n", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "2"}], ":", 
+    RowBox[{
+    "Generate", " ", "random", " ", "bit", " ", "sequence", " ", "for", " ", 
+     RowBox[{"Alice", "'"}], "s", " ", "key", " ", 
+     RowBox[{"(", 
+      RowBox[{"0", "s", " ", "and", " ", "1", "s"}], ")"}]}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"aliceBits", "=", 
+    RowBox[{"RandomInteger", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"0", ",", "1"}], "}"}], ",", "numQubits"}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\n", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "3"}], ":", 
+    RowBox[{"Alice", " ", "randomly", " ", "chooses", " ", "bases", " ", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"0", " ", "for", " ", "rectilinear"}], ",", 
+       RowBox[{"1", " ", "for", " ", "diagonal"}]}], ")"}]}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"aliceBases", "=", 
+    RowBox[{"RandomInteger", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"0", ",", "1"}], "}"}], ",", "numQubits"}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\n", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "4"}], ":", 
+    RowBox[{
+    "Bob", " ", "randomly", " ", "chooses", " ", "bases", " ", "to", " ", 
+     "measure", " ", "the", " ", "qubits"}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"bobBases", "=", 
+    RowBox[{"RandomInteger", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"0", ",", "1"}], "}"}], ",", "numQubits"}], "]"}]}], ";"}], 
+  "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "5"}], ":", 
+    RowBox[{
+    "Alice", " ", "prepares", " ", "and", " ", "sends", " ", "qubits", " ", 
+     "based", " ", "on", " ", "her", " ", "bits", " ", "and", " ", 
+     "bases"}]}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"For", " ", "simplicity"}], ",", 
+    RowBox[{
+    "we", " ", "represent", " ", "qubits", " ", "as", " ", "classical", " ", 
+     "bits", " ", "with", " ", "basis", " ", "information"}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"sendQubit", "[", 
+     RowBox[{"bit_", ",", "basis_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "qubit", "}"}], ",", 
+      RowBox[{
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"basis", "\[Equal]", "0"}], ",", 
+         RowBox[{"(*", 
+          RowBox[{"Rectilinear", " ", "basis"}], "*)"}], 
+         RowBox[{"qubit", "=", "bit"}], ",", 
+         RowBox[{"(*", 
+          RowBox[{
+           RowBox[{"0", "\[Rule]", " ", 
+            RowBox[{"|", 
+             RowBox[{"0", "\:27e9"}]}]}], ",", 
+           RowBox[{"1", "\[Rule]", " ", 
+            RowBox[{"|", 
+             RowBox[{"1", "\:27e9"}]}]}]}], "*)"}], 
+         RowBox[{"qubit", "=", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"bit", "\[Equal]", "0"}], ",", "\"\<+\>\"", ",", 
+            "\"\<-\>\""}], "]"}]}]}], " ", 
+        RowBox[{"(*", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Diagonal", " ", 
+            RowBox[{"basis", ":", "0"}]}], "\[Rule]", " ", 
+           RowBox[{"|", 
+            RowBox[{"+", "\:27e9"}]}]}], ",", 
+          RowBox[{"1", "\[Rule]", " ", 
+           RowBox[{"|", 
+            RowBox[{"\[Minus]", "\:27e9"}]}]}]}], "*)"}], "]"}], ";", 
+       "\[IndentingNewLine]", "qubit"}]}], "]"}]}], ";"}], 
+  "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"aliceQubits", "=", 
+    RowBox[{"MapThread", "[", 
+     RowBox[{"sendQubit", ",", 
+      RowBox[{"{", 
+       RowBox[{"aliceBits", ",", "aliceBases"}], "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "6"}], ":", 
+    RowBox[{"Bob", " ", "measures", " ", "the", " ", "qubits"}]}], 
+   "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"measureQubit", "[", 
+     RowBox[{"qubit_", ",", "basis_"}], "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "result", "}"}], ",", 
+      RowBox[{
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"basis", "\[Equal]", "0"}], ",", 
+         RowBox[{"(*", 
+          RowBox[{"Rectilinear", " ", "basis"}], "*)"}], 
+         RowBox[{"result", "=", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"qubit", "\[Equal]", "\"\<+\>\""}], "||", 
+             RowBox[{"qubit", "\[Equal]", "\"\<-\>\""}]}], ",", 
+            RowBox[{"RandomInteger", "[", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "1"}], "}"}], "]"}], ",", "qubit"}], "]"}]}], 
+         ",", 
+         RowBox[{"result", "=", 
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"qubit", "\[Equal]", "0"}], "||", 
+             RowBox[{"qubit", "\[Equal]", "1"}]}], ",", 
+            RowBox[{"RandomInteger", "[", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", "1"}], "}"}], "]"}], ",", 
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{"qubit", "\[Equal]", "\"\<+\>\""}], ",", "0", ",", 
+              "1"}], "]"}]}], "]"}]}]}], "]"}], ";", "\[IndentingNewLine]", 
+       "result"}]}], "]"}]}], ";"}], "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"bobBits", "=", 
+    RowBox[{"MapThread", "[", 
+     RowBox[{"measureQubit", ",", 
+      RowBox[{"{", 
+       RowBox[{"aliceQubits", ",", "bobBases"}], "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "7"}], ":", 
+    RowBox[{"Basis", " ", "comparison"}], ":", 
+    RowBox[{
+    "Alice", " ", "and", " ", "Bob", " ", "publicly", " ", "compare", " ", 
+     "their", " ", "bases"}]}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"matchingBases", "=", 
+    RowBox[{"Map", "[", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"If", "[", 
+        RowBox[{"#", ",", "\"\<\[CheckmarkedBox]\>\"", ",", "\"\<x\>\""}], 
+        "]"}], "&"}], ",", 
+      RowBox[{"MapThread", "[", 
+       RowBox[{"Equal", ",", 
+        RowBox[{"{", 
+         RowBox[{"aliceBases", ",", "bobBases"}], "}"}]}], "]"}]}], "]"}]}], 
+   ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "8"}], ":", 
+    RowBox[{"Key", " ", "sifting"}], ":", 
+    RowBox[{
+    "Keep", " ", "only", " ", "the", " ", "bits", " ", "where", " ", "the", 
+     " ", "bases", " ", "matched"}]}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{"siftedKeyIndices", "=", 
+   RowBox[{"Flatten", "[", 
+    RowBox[{"Position", "[", 
+     RowBox[{
+      RowBox[{"MapThread", "[", 
+       RowBox[{"Equal", ",", 
+        RowBox[{"{", 
+         RowBox[{"aliceBases", ",", "bobBases"}], "}"}]}], "]"}], ",", 
+      "True"}], "]"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"aliceSiftedKey", "=", 
+   RowBox[{"aliceBits", "[", 
+    RowBox[{"[", "siftedKeyIndices", "]"}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"bobSiftedKey", "=", 
+    RowBox[{"bobBits", "[", 
+     RowBox[{"[", "siftedKeyIndices", "]"}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "9"}], ":", 
+    RowBox[{"Check", " ", "for", " ", "errors", " ", 
+     RowBox[{"(", 
+      RowBox[{
+      "simulated", " ", "in", " ", "this", " ", "case", " ", "by", " ", 
+       "checking", " ", "bit", " ", "equality"}], ")"}]}]}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"errorRate", "=", 
+    RowBox[{"N", "[", 
+     RowBox[{
+      RowBox[{"Count", "[", 
+       RowBox[{
+        RowBox[{"aliceSiftedKey", "-", "bobSiftedKey"}], ",", 
+        RowBox[{"x_", "/;", 
+         RowBox[{"x", "\[NotEqual]", "0"}]}]}], "]"}], "/", 
+      RowBox[{"Length", "[", "aliceSiftedKey", "]"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Step", " ", "10"}], ":", 
+    RowBox[{
+    "Create", " ", "a", " ", "grid", " ", "to", " ", "display", " ", "the", 
+     " ", "outputs"}]}], "*)"}]}], "\n", 
+ RowBox[{"Grid", "[", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"\"\<Label\>\"", ",", "\"\<String\>\""}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Alice's Bits\>\"", ",", "aliceBits"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Alice's Bases\>\"", ",", "aliceBases"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Bob's Bases\>\"", ",", "bobBases"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Alice's Qubits (sent)\>\"", ",", "aliceQubits"}], "}"}], 
+    ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Bob's Bits (measured)\>\"", ",", "bobBits"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Matching Bases\>\"", ",", "matchingBases"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Alice's Sifted Key\>\"", ",", "aliceSiftedKey"}], "}"}], 
+    ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Bob's Sifted Key\>\"", ",", "bobSiftedKey"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Error Rate\>\"", ",", "errorRate"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Key Exchange\>\"", ",", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{"errorRate", "<", "0.11"}], ",", "\"\<Successful\>\"", ",", 
+        "\"\<Failed due to high error rate\>\""}], "]"}]}], "}"}]}], "}"}], 
+  "]"}], "\n"}], "Input",
+ CellChangeTimes->{{3.9368206710294094`*^9, 3.936820747778358*^9}},
+ CellLabel->
+  "In[293]:=",ExpressionUUID->"7505f8d4-e14d-4031-b368-b42a26696560"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"Label\"\>", "\<\"String\"\>"},
+    {"\<\"Alice's Bits\"\>", 
+     RowBox[{"{", 
+      RowBox[{
+      "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", 
+       "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "1", ",", 
+       "1", ",", "0", ",", "0", ",", "1", ",", "0", ",", "0", ",", "1", ",", 
+       "0", ",", "1", ",", "1", ",", "0", ",", "1", ",", "1", ",", "0", ",", 
+       "1", ",", "0"}], "}"}]},
+    {"\<\"Alice's Bases\"\>", 
+     RowBox[{"{", 
+      RowBox[{
+      "1", ",", "1", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", 
+       "1", ",", "1", ",", "1", ",", "1", ",", "0", ",", "0", ",", "1", ",", 
+       "1", ",", "1", ",", "0", ",", "0", ",", "1", ",", "0", ",", "0", ",", 
+       "1", ",", "1", ",", "0", ",", "1", ",", "0", ",", "1", ",", "1", ",", 
+       "1", ",", "1"}], "}"}]},
+    {"\<\"Bob's Bases\"\>", 
+     RowBox[{"{", 
+      RowBox[{
+      "1", ",", "1", ",", "0", ",", "1", ",", "0", ",", "0", ",", "1", ",", 
+       "0", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "0", ",", 
+       "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", 
+       "1", ",", "0", ",", "0", ",", "0", ",", "0", ",", "0", ",", "1", ",", 
+       "1", ",", "0"}], "}"}]},
+    {"\<\"Alice's Qubits (sent)\"\>", 
+     RowBox[{"{", 
+      RowBox[{"\<\"-\"\>", ",", "\<\"-\"\>", ",", "1", ",", "1", ",", "1", 
+       ",", "1", ",", "1", ",", "\<\"+\"\>", ",", "\<\"+\"\>", 
+       ",", "\<\"+\"\>", ",", "\<\"+\"\>", ",", "0", ",", "0", 
+       ",", "\<\"-\"\>", ",", "\<\"-\"\>", ",", "\<\"+\"\>", ",", "0", ",", 
+       "1", ",", "\<\"+\"\>", ",", "0", ",", "1", ",", "\<\"+\"\>", 
+       ",", "\<\"-\"\>", ",", "1", ",", "\<\"+\"\>", ",", "1", 
+       ",", "\<\"-\"\>", ",", "\<\"+\"\>", ",", "\<\"-\"\>", 
+       ",", "\<\"+\"\>"}], "}"}]},
+    {"\<\"Bob's Bits (measured)\"\>", 
+     RowBox[{"{", 
+      RowBox[{
+      "1", ",", "1", ",", "1", ",", "0", ",", "1", ",", "1", ",", "1", ",", 
+       "0", ",", "0", ",", "0", ",", "0", ",", "1", ",", "0", ",", "1", ",", 
+       "1", ",", "0", ",", "0", ",", "1", ",", "0", ",", "0", ",", "0", ",", 
+       "0", ",", "0", ",", "1", ",", "1", ",", "1", ",", "0", ",", "0", ",", 
+       "1", ",", "1"}], "}"}]},
+    {"\<\"Matching Bases\"\>", 
+     RowBox[{"{", 
+      RowBox[{"\<\"\[CheckmarkedBox]\"\>", ",", "\<\"\[CheckmarkedBox]\"\>", 
+       ",", "\<\"\[CheckmarkedBox]\"\>", ",", "\<\"x\"\>", 
+       ",", "\<\"\[CheckmarkedBox]\"\>", ",", "\<\"\[CheckmarkedBox]\"\>", 
+       ",", "\<\"x\"\>", ",", "\<\"x\"\>", ",", "\<\"\[CheckmarkedBox]\"\>", 
+       ",", "\<\"\[CheckmarkedBox]\"\>", ",", "\<\"\[CheckmarkedBox]\"\>", 
+       ",", "\<\"x\"\>", ",", "\<\"x\"\>", ",", "\<\"x\"\>", 
+       ",", "\<\"\[CheckmarkedBox]\"\>", ",", "\<\"\[CheckmarkedBox]\"\>", 
+       ",", "\<\"x\"\>", ",", "\<\"x\"\>", ",", "\<\"\[CheckmarkedBox]\"\>", 
+       ",", "\<\"x\"\>", ",", "\<\"x\"\>", ",", "\<\"\[CheckmarkedBox]\"\>", 
+       ",", "\<\"x\"\>", ",", "\<\"\[CheckmarkedBox]\"\>", ",", "\<\"x\"\>", 
+       ",", "\<\"\[CheckmarkedBox]\"\>", ",", "\<\"x\"\>", 
+       ",", "\<\"\[CheckmarkedBox]\"\>", ",", "\<\"\[CheckmarkedBox]\"\>", 
+       ",", "\<\"x\"\>"}], "}"}]},
+    {"\<\"Alice's Sifted Key\"\>", 
+     RowBox[{"{", 
+      RowBox[{
+      "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "0", ",", "0", ",", 
+       "0", ",", "1", ",", "0", ",", "0", ",", "0", ",", "1", ",", "1", ",", 
+       "0", ",", "1"}], "}"}]},
+    {"\<\"Bob's Sifted Key\"\>", 
+     RowBox[{"{", 
+      RowBox[{
+      "1", ",", "1", ",", "1", ",", "1", ",", "1", ",", "0", ",", "0", ",", 
+       "0", ",", "1", ",", "0", ",", "0", ",", "0", ",", "1", ",", "1", ",", 
+       "0", ",", "1"}], "}"}]},
+    {"\<\"Error Rate\"\>", "0.`"},
+    {"\<\"Key Exchange\"\>", "\<\"Successful\"\>"}
+   },
+   AutoDelete->False,
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{{3.936820673127244*^9, 3.9368207359120016`*^9}, 
+   3.936820790417564*^9},
+ CellLabel->
+  "Out[307]=",ExpressionUUID->"23881507-6eeb-4fde-984a-e9c27d775a01"]
+}, Open  ]],
+
+Cell["\<\
+Explanation of the Code:
+Step 1: Define the number of qubits.
+
+We assume that Alice is sending 100 qubits, though you can increase or \
+decrease this number as needed.
+Step 2: Alice generates random bits.
+
+Alice randomly chooses a string of bits (0s and 1s), which will eventually \
+form part of the key.
+Step 3: Alice randomly chooses bases.
+
+For each bit, Alice randomly chooses whether to prepare the qubit in the \
+rectilinear basis (|0\:27e9, |1\:27e9) or the diagonal basis (|+\:27e9, |\
+\[Minus]\:27e9).
+Step 4: Bob randomly chooses bases.
+
+Bob chooses a random basis (rectilinear or diagonal) for each qubit he \
+receives. He doesn't know Alice's basis choice, so his choices are random.
+Step 5: Alice prepares and sends qubits.
+
+Depending on the chosen basis and the bit value, Alice sends the \
+corresponding qubit. For simplicity, we treat qubits as classical information \
+here.
+Step 6: Bob measures the qubits.
+
+Bob measures the received qubits in his randomly chosen basis. If Bob's basis \
+matches Alice's, the measurement will yield the correct bit. If the bases are \
+different, the result will be random.
+Step 7: Basis comparison.
+
+Alice and Bob publicly compare the bases they used for each qubit, discarding \
+the bits where their bases differ.
+Step 8: Key sifting.
+
+Alice and Bob keep only the bits where their bases matched, forming their \
+sifted keys.
+Step 9: Error checking.
+
+The sifted keys should match perfectly if no errors occurred. However, if \
+noise or an eavesdropper (Eve) introduced errors, some bits might differ. The \
+error rate is calculated by comparing Alice's and Bob's sifted keys.
+Step 10: Key exchange success or failure.
+
+If the error rate is below a certain threshold (in this case, we assume 11%), \
+the key exchange is successful. If the error rate is too high, the protocol \
+is aborted.\
+\>", "Text",
+ CellChangeTimes->{{3.936820886454457*^9, 
+  3.936820886454457*^9}},ExpressionUUID->"502178da-7806-4a62-b1df-\
+a2be1e314b41"],
+
+Cell["", "Text",
+ CellChangeTimes->{{3.9368208866743717`*^9, 
+  3.9368208891325517`*^9}},ExpressionUUID->"6eb68483-4eec-4a8c-91b2-\
+1375df8c701d"],
+
+Cell["\<\
+Key Points of BB84:
+Security: Any eavesdropper (Eve) trying to intercept the qubits will \
+introduce detectable errors due to the no-cloning theorem and the fact that \
+measuring in the wrong basis disturbs the qubit.
+Error Rate: A small amount of error (due to noise or a small amount of \
+eavesdropping) is tolerable. However, a high error rate indicates an attack, \
+and Alice and Bob should abort the protocol.
+Privacy Amplification: After error correction, Alice and Bob apply privacy \
+amplification techniques to further reduce the amount of information that may \
+have been leaked to an eavesdropper, producing a highly secure shared key.
+This simple simulation illustrates the BB84 protocol. In real-world \
+applications, the transmitted qubits would be actual quantum states rather \
+than simulated bits, and sophisticated methods for error correction and \
+privacy amplification would be applied.\
+\>", "Text",
+ CellChangeTimes->{{3.9368208866743717`*^9, 
+  3.936820889586836*^9}},ExpressionUUID->"2d7154c7-f407-4cd2-8e27-\
+a2768e2f8c99"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["QKD Attacks", "Subsection",
+ CellChangeTimes->{{3.93679661678691*^9, 3.936796625304134*^9}, {
+  3.9367974754018993`*^9, 3.936797496358797*^9}, {3.936797734606146*^9, 
+  3.936797741992073*^9}, {3.936798430214559*^9, 3.9367984618101287`*^9}, {
+  3.9367996374457703`*^9, 3.936799699548324*^9}, {3.9368011160419893`*^9, 
+  3.936801126246811*^9}, {3.9368209171810617`*^9, 
+  3.9368209304398966`*^9}},ExpressionUUID->"288ec881-9d7a-4af1-93a4-\
+91aaf21882ad"],
+
+Cell["\<\
+\\textit{photon Number Splitting (PNS) Attacks} --
+   Eve exploits the fact that weak coherent pulses (WPCs) used in some QKD \
+systems can contain more than one photon. By splitting off one of the photons \
+from a multiphoton pulse and keeping it, Eve can measure it later once the \
+key has been established and the basis is publicly announced, without \
+disturbing the state of the photons sent to Bob \
+\\cite{Huttner1995,Luetkenhaus2002,Wang2005}. \\textit{Intercept-and-Resend \
+Attacks} --
+   In this straightforward attack, Eve intercepts the quantum states \
+(photons) sent by Alice, measures them in a randomly chosen basis, and then \
+sends replaced photons based on her measurements to Bob. While this attack \
+introduces errors in the key and can be detected by checking the QBER, it may \
+still pose a risk if not properly monitored \
+\\cite{Barnett1993,Nguyen2004,EZZAHRAOUY2009}, \\textit{Side-Channel \
+Attacks}, --
+   This attack does not breach the cryptographic algorithm mathematically but \
+exploits the physical implementation's leakage (the \"side-channel\") to \
+reveal secret information. The attacker is essentially listening to the \
+unintended signals the device implemented emits to learn its secrets. It can \
+include, but are not limited to, timing information, power consumption, \
+electromagnetic emissions, or even acoustic signals from the quantum devices, \
+which might leak information about the secret key \
+\\cite{standaert2010introduction,braunstein2012side,Baliuka2023,Zhang2022b}.
+
+\\textit{Trojan Horse Attacks} --
+   In a Trojan horse attack, Eve sends her own photons into Alice's or Bob's \
+device in an attempt to gather information about the secret key. By analyzing \
+the outgoing light, potentially modified by the device's settings (which \
+relate to the key bits), Eve might gain information about the key \
+\\cite{Gisin2006,Jain2014}.
+   
+\\textit{Device Calibration Attacks} --
+   %These attacks exploit vulnerabilities in the calibration of quantum \
+cryptography devices. If the devices are not calibrated correctly, an \
+attacker might exploit these inaccuracies to introduce or amplify errors in \
+the key distribution process, potentially allowing for eavesdropping.
+   Calibration is supposed to align preparations and measurements so that a \
+photon intended to represent a \"0\" bit is not misinterpreted as a \"1\". An \
+attacker, by exploiting vulnerabilities in calibration, could, for example, \
+manipulate the timing of pulses or the alignment of optical components in a \
+way that the calibration seems correct under normal testing conditions but is \
+biased in a way that benefits the attacker. These systematic errors might be \
+injected in faulty signals, in the software or by physical tampering with the \
+setup. \\cite{Fung2007,zhao08,Xu2010,Jouguet2013,Mao2020,Emde2024}
+
+\\textit{Quantum Channel Attacks} --
+   Attacks on the quantum channel itself, such as fiber tapping or \
+manipulation of the transmission medium, could potentially allow an \
+eavesdropper to gain access to the quantum states being transmitted without \
+being detected. Techniques like evanescent wave coupling, where a portion of \
+the light signal is captured by bringing another fiber close to the original, \
+could be used via PNS; if the conditions in the quantum channel are subtly \
+changed, such as the temperature or the physical properties of the fiber, an \
+attacker could attempt to alter the phase of the quantum states being \
+transmitted. This could potentially allow the reconstruction of the \
+transmitted information without direct measurement \\cite{Jain2016}. Ref. \
+\\cite{Lo2005} discusses vulnerabilities when WPCs are employed. To counter \
+PNS attacks, decoy states are sent alongside the actual signals. By analyzing \
+these additional quantum states, the system can detect eavesdropping attempts \
+that rely on splitting off extra photons.
+% 7. Denial of Service (DoS):
+%    While not directly an attack on the secrecy of the key, DoS attacks can \
+disrupt the availability of the QKD system. By overwhelming the system with \
+excessive quantum or classical signals, an attacker can prevent legitimate \
+users from communicating.\
+\>", "Text",ExpressionUUID->"e3665577-1611-4a99-8c59-11ed32b4667a"]
+}, Open  ]]
+}, Open  ]],
+
+Cell["Non classicality in quantum cryptography ", "Section",
+ CellChangeTimes->{{3.9367959727738857`*^9, 3.936795976800544*^9}, {
+   3.9367963378147364`*^9, 3.9367963383059998`*^9}, 3.936796463016715*^9, {
+   3.9367969696360197`*^9, 
+   3.9367969916674423`*^9}},ExpressionUUID->"825564bc-aa3c-4f4d-b047-\
+ea9829d12793"]
+}, Open  ]]
+},
+WindowSize->{1920, 989},
+WindowMargins->{{-8, Automatic}, {Automatic, -8}},
+TaggingRules->{"TryRealOnly" -> False},
+Magnification:>1.4 Inherited,
+FrontEndVersion->"12.0 for Microsoft Windows (64-bit) (April 8, 2019)",
+StyleDefinitions->FrontEnd`FileName[{"Article"}, "JournalArticle.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 258, 5, 108, "Title",ExpressionUUID->"ff2920fa-85df-4a40-9857-7b8862bd64d5"],
+Cell[841, 29, 188, 2, 42, "Subtitle",ExpressionUUID->"5b998d5d-febb-4f64-bc01-a83ca3a1475e"],
+Cell[1032, 33, 514, 9, 30, "Text",ExpressionUUID->"e8640b43-38a1-4ef5-83da-ba9c4026761c"],
+Cell[CellGroupData[{
+Cell[1571, 46, 236, 4, 70, "Section",ExpressionUUID->"8c347c82-e0fd-4a6b-b34d-1e348ea61239"],
+Cell[1810, 52, 481, 9, 30, "Text",ExpressionUUID->"854729f0-832d-49b9-b11e-fba360e76521"],
+Cell[CellGroupData[{
+Cell[2316, 65, 165, 3, 47, "Subsection",ExpressionUUID->"d759ed80-ac08-4b91-a6b8-04e5448d3ef9"],
+Cell[CellGroupData[{
+Cell[2506, 72, 179, 3, 35, "Subsubsection",ExpressionUUID->"1dedd805-7803-4d1a-852b-153c2d929bfc"],
+Cell[2688, 77, 155, 3, 30, "Text",ExpressionUUID->"9c19f6ee-3fd2-40af-ae5a-54de55caa8f7"],
+Cell[2846, 82, 3006, 76, 1260, "Text",ExpressionUUID->"17291cf7-1cf7-4a5e-9395-03dad991df74"],
+Cell[5855, 160, 6612, 165, 942, "Input",ExpressionUUID->"1482a29e-f7e3-481f-aef4-9ddb412f4d8c"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[12504, 330, 354, 5, 35, "Subsubsection",ExpressionUUID->"869907fe-2aeb-4ff1-8b03-a487c28cb024"],
+Cell[CellGroupData[{
+Cell[12883, 339, 5940, 149, 942, "Input",ExpressionUUID->"8c2ad45d-919e-4372-84f5-c24bf45cd6fe"],
+Cell[18826, 490, 553, 11, 41, "Output",ExpressionUUID->"722ced0b-fd2b-4f2c-a852-e5a0d7fb0b17"],
+Cell[19382, 503, 742, 16, 41, "Output",ExpressionUUID->"aedbf36a-a919-44da-ace7-bc706a5487a0"]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[20173, 525, 318, 5, 35, "Subsubsection",ExpressionUUID->"fcf574b1-2f71-4ce0-9598-19d62ff00505"],
+Cell[20494, 532, 1576, 29, 309, "Text",ExpressionUUID->"0ee0194b-4e45-4767-9817-781a6d2c3e1b"],
+Cell[22073, 563, 154, 3, 41, "Input",ExpressionUUID->"23c3e3cc-027c-4625-aa03-2d0e8b8b9c98"],
+Cell[CellGroupData[{
+Cell[22252, 570, 5479, 137, 892, "Input",ExpressionUUID->"845a5afe-ec54-463c-bf58-200fcbaba7c7"],
+Cell[27734, 709, 288, 5, 41, "Output",ExpressionUUID->"76d4fee5-e7bc-40a9-ba14-c626137a7e62"],
+Cell[28025, 716, 226, 4, 41, "Output",ExpressionUUID->"f5f354a9-de1f-4dcd-90c4-55d803719075"],
+Cell[28254, 722, 506, 10, 41, "Output",ExpressionUUID->"418adb45-eb04-4160-85ea-c5632fb1a0d9"]
+}, Closed]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[28809, 738, 157, 3, 35, "Subsubsection",ExpressionUUID->"cb45650e-e670-4922-ac31-74c848097f5f"],
+Cell[28969, 743, 3721, 90, 1492, "Text",ExpressionUUID->"bbe96e6e-9f8b-4fd5-bdf7-bfb697074b37"],
+Cell[CellGroupData[{
+Cell[32715, 837, 3633, 89, 667, "Input",ExpressionUUID->"95aa8cd4-af42-45de-afd1-5f5498547a05"],
+Cell[36351, 928, 206, 3, 41, "Output",ExpressionUUID->"a07a73be-7587-4d05-a66f-088f058061a1"],
+Cell[36560, 933, 204, 3, 41, "Output",ExpressionUUID->"d814b613-d5ea-4c8d-ad9d-86db499cf252"],
+Cell[36767, 938, 563, 12, 41, "Output",ExpressionUUID->"50789ef8-ec78-4ddb-a089-507c241a4bc4"]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[37379, 956, 154, 3, 35, "Subsubsection",ExpressionUUID->"7b2a2b4d-bdcf-41dd-bbe7-931c69ce5028"],
+Cell[CellGroupData[{
+Cell[37558, 963, 8798, 224, 1542, "Input",ExpressionUUID->"70f4b01e-d789-401c-b92f-f2c889fa2ab3"],
+Cell[46359, 1189, 173, 3, 41, "Output",ExpressionUUID->"ff2b3676-b2cb-4aa6-a380-e1b831b20f37"],
+Cell[46535, 1194, 402, 8, 41, "Output",ExpressionUUID->"b4e46026-3acb-422c-b51f-16d7340aa991"]
+}, Open  ]]
+}, Closed]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[46998, 1209, 232, 4, 42, "Subsection",ExpressionUUID->"11b91ffa-6725-48b4-96b5-fa1d2b9f59e4"],
+Cell[47233, 1215, 4590, 64, 1678, "Text",ExpressionUUID->"a9ee4343-3065-44d9-b861-bec9c9aa6a5c"],
+Cell[CellGroupData[{
+Cell[51848, 1283, 14793, 377, 1567, "Input",ExpressionUUID->"7e580f06-adc3-43f6-a7d5-a044e25796d3"],
+Cell[CellGroupData[{
+Cell[66666, 1664, 356, 9, 32, "Print",ExpressionUUID->"d0dd49b2-8261-4785-b8e2-8c8ad45614b0"],
+Cell[67025, 1675, 364, 9, 32, "Print",ExpressionUUID->"02dd48c1-b8f2-4f92-ae33-743a92758371"],
+Cell[67392, 1686, 361, 9, 32, "Print",ExpressionUUID->"7d237778-8043-47e4-86b6-32981a7e1e21"]
+}, Open  ]]
+}, Open  ]],
+Cell[67780, 1699, 1419, 33, 425, "Text",ExpressionUUID->"b396143f-599e-48e3-84e9-896bbe00b4f0"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[69236, 1737, 272, 4, 42, "Subsection",ExpressionUUID->"f398a0be-8227-479e-9079-58fbedeb053a"],
+Cell[69511, 1743, 3722, 93, 1562, "Text",ExpressionUUID->"a539116e-b09c-4a81-a89b-0882c9eac0dd"],
+Cell[CellGroupData[{
+Cell[73258, 1840, 9361, 250, 1217, "Input",ExpressionUUID->"1d42a17f-efcc-473e-aece-7c14bb4e4f43"],
+Cell[CellGroupData[{
+Cell[82644, 2094, 654, 16, 32, "Print",ExpressionUUID->"8e3973fa-b350-4225-b58f-eea7de695b43"],
+Cell[83301, 2112, 411, 10, 32, "Print",ExpressionUUID->"d2cb00e2-78f1-4426-b152-f78fb320b0c2"]
+}, Open  ]]
+}, Open  ]],
+Cell[83739, 2126, 1364, 29, 355, "Text",ExpressionUUID->"e7bedf2a-a796-4ef6-869f-1c6606d63eb3"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[85140, 2160, 309, 5, 42, "Subsection",ExpressionUUID->"a888c634-ade7-43a3-bde6-190b48446a7f"],
+Cell[85452, 2167, 4401, 130, 2420, "Text",ExpressionUUID->"a454a1a6-3d21-4cba-9d85-70951a467cff"],
+Cell[CellGroupData[{
+Cell[89878, 2301, 5396, 152, 867, "Input",ExpressionUUID->"f0821368-819b-4aa7-b716-977ae480b44a"],
+Cell[95277, 2455, 182, 3, 41, "Output",ExpressionUUID->"0c396c5e-e822-437d-a239-d5f32993183a"],
+Cell[95462, 2460, 1073, 24, 67, "Output",ExpressionUUID->"c8bf3482-f911-4267-ab97-9fb06d8c2cb7"]
+}, Open  ]],
+Cell[96550, 2487, 1045, 26, 378, "Text",ExpressionUUID->"d0164c6f-0c42-45e5-b804-8033cfc7ceb6"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[97632, 2518, 389, 6, 42, "Subsection",ExpressionUUID->"767cc390-83d4-4b18-8037-f772e8b0b9f3"],
+Cell[98024, 2526, 2247, 37, 309, "Text",ExpressionUUID->"df865d2f-6b82-4579-87a1-b0a2bc6ca186"],
+Cell[CellGroupData[{
+Cell[100296, 2567, 143, 3, 35, "Subsubsection",ExpressionUUID->"13d35e90-9394-4ed1-a919-55e94d2a39d7"],
+Cell[100442, 2572, 766, 13, 146, "Text",ExpressionUUID->"fddd06e1-1cc5-4df0-924c-4fa6b4d5bd78"],
+Cell[CellGroupData[{
+Cell[101233, 2589, 10905, 268, 1117, "Input",ExpressionUUID->"b6944fb3-0ed3-4b3a-bd70-a46fd0e09c63"],
+Cell[CellGroupData[{
+Cell[112163, 2861, 578, 14, 32, "Print",ExpressionUUID->"1c42a35a-006a-40c6-86d4-6061ce814fcb"],
+Cell[112744, 2877, 602, 15, 32, "Print",ExpressionUUID->"2245af03-8382-4467-aeb5-ae2880d575a2"],
+Cell[113349, 2894, 401, 9, 58, "Print",ExpressionUUID->"e3ff41bf-88a9-45f2-b3de-1dd4a9f9c380"],
+Cell[113753, 2905, 463, 11, 32, "Print",ExpressionUUID->"66b94fba-82ca-4f22-beb6-de0786fb9d37"],
+Cell[114219, 2918, 364, 9, 32, "Print",ExpressionUUID->"22b2d61a-5cec-4a57-ba80-a557d21ec632"],
+Cell[114586, 2929, 574, 14, 32, "Print",ExpressionUUID->"122852c2-b62f-4047-8786-477d2e6cb09c"],
+Cell[115163, 2945, 467, 11, 32, "Print",ExpressionUUID->"277c5f46-e1be-4327-ba97-b73e8bdc58d6"],
+Cell[115633, 2958, 366, 9, 32, "Print",ExpressionUUID->"f432605a-504e-44cf-aa25-fd6afcb24c3e"],
+Cell[116002, 2969, 574, 14, 32, "Print",ExpressionUUID->"eba60b7c-35e9-4a30-b466-0b3cb75af5f0"],
+Cell[116579, 2985, 401, 9, 58, "Print",ExpressionUUID->"62b5054b-e716-4f39-866f-a2ef0dbcc387"],
+Cell[116983, 2996, 401, 9, 58, "Print",ExpressionUUID->"8ad077f3-e1e6-4e18-9f90-9facc84e3096"],
+Cell[117387, 3007, 403, 9, 58, "Print",ExpressionUUID->"a3f74da2-749e-4641-8790-54dc3ff31b18"],
+Cell[117793, 3018, 599, 15, 58, "Print",ExpressionUUID->"b5fefcb7-f990-4e4f-ae6c-268fff40f7e6"],
+Cell[118395, 3035, 366, 9, 32, "Print",ExpressionUUID->"fe610d85-a7ae-4e30-b19c-fa93500ce99e"]
+}, Open  ]]
+}, Open  ]],
+Cell[118788, 3048, 2049, 46, 773, "Text",ExpressionUUID->"03caa671-f7cc-4ff6-a01c-1944f55a00d5"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[120874, 3099, 249, 4, 35, "Subsubsection",ExpressionUUID->"46c257aa-3aa1-4d65-a8f3-3e4ab8d504a2"],
+Cell[121126, 3105, 1175, 20, 216, "Text",ExpressionUUID->"71f52c4b-4007-48fc-a6c1-33652d5cf7d7"],
+Cell[CellGroupData[{
+Cell[122326, 3129, 13175, 347, 1271, "Input",ExpressionUUID->"88b045c3-ead4-405d-90fc-ace253b2086e"],
+Cell[CellGroupData[{
+Cell[135526, 3480, 507, 12, 32, "Print",ExpressionUUID->"232a75e0-29ef-43c7-9dbe-a0b6a07e48c5"],
+Cell[136036, 3494, 563, 13, 32, "Print",ExpressionUUID->"5dabf749-4a80-4ef1-897d-89262408b82f"],
+Cell[136602, 3509, 589, 13, 32, "Print",ExpressionUUID->"638339b7-c189-4141-99a6-b66ebe181869"],
+Cell[137194, 3524, 563, 13, 32, "Print",ExpressionUUID->"8c79f41f-cc81-4a82-939e-ba3142bac972"],
+Cell[137760, 3539, 453, 10, 32, "Print",ExpressionUUID->"53b92a8c-c415-4f73-9632-fea9c17b5dbb"]
+}, Open  ]]
+}, Open  ]],
+Cell[138240, 3553, 1186, 21, 148, "Text",ExpressionUUID->"79e1a8dc-20e6-446f-80eb-29256065e394"]
+}, Closed]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[139475, 3580, 430, 6, 42, "Subsection",ExpressionUUID->"4d68e1c6-fb08-4492-b13b-bc6bac8bd0cc"],
+Cell[139908, 3588, 1682, 30, 262, "Text",ExpressionUUID->"f8662341-f204-4e99-b03c-940251d5dfa5"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[141627, 3623, 441, 6, 42, "Subsection",ExpressionUUID->"0e5e8603-aea0-4f69-8902-d024cb9c079d"],
+Cell[142071, 3631, 144, 3, 30, "Text",ExpressionUUID->"188fa22d-87a3-4f4d-9ef2-70125e33f701"],
+Cell[142218, 3636, 1249, 22, 216, "Text",ExpressionUUID->"e3f68a39-de58-4b94-b7ec-9c00cbce3bc5"],
+Cell[CellGroupData[{
+Cell[143492, 3662, 9900, 281, 1096, "Input",ExpressionUUID->"7505f8d4-e14d-4031-b368-b42a26696560"],
+Cell[153395, 3945, 4141, 81, 266, "Output",ExpressionUUID->"23881507-6eeb-4fde-984a-e9c27d775a01"]
+}, Open  ]],
+Cell[157551, 4029, 1988, 50, 727, "Text",ExpressionUUID->"502178da-7806-4a62-b1df-a2be1e314b41"],
+Cell[159542, 4081, 146, 3, 30, "Text",ExpressionUUID->"6eb68483-4eec-4a8c-91b2-1375df8c701d"],
+Cell[159691, 4086, 1059, 18, 123, "Text",ExpressionUUID->"2d7154c7-f407-4cd2-8e27-a2768e2f8c99"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[160787, 4109, 458, 7, 42, "Subsection",ExpressionUUID->"288ec881-9d7a-4af1-93a4-91aaf21882ad"],
+Cell[161248, 4118, 4283, 66, 634, "Text",ExpressionUUID->"e3665577-1611-4a99-8c59-11ed32b4667a"]
+}, Open  ]]
+}, Open  ]],
+Cell[165558, 4188, 319, 5, 70, "Section",ExpressionUUID->"825564bc-aa3c-4f4d-b047-ea9829d12793"]
+}, Open  ]]
+}
+]
+*)
+
