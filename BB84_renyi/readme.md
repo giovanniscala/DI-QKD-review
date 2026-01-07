@@ -1,1 +1,1 @@
-
+Matlab code - Estimation of the finite-size secret-key rates for BB84 protocol through Finite-size min-entropy, Asymptotic equipartition property and Entropic uncertainty relation approach, related to arXiv paper: “Finite-size security of QKD: comparison of three proof techniques”
